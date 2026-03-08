@@ -101,4 +101,12 @@ public class User {
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
     }
+
+    public Set<Department> getAssignedDepartments() {
+        return assignedDepartments;
+    }
+
+    public void setAssignedDepartments(Set<Department> assignedDepartments) {
+        this.assignedDepartments = assignedDepartments;
+    }
 }
