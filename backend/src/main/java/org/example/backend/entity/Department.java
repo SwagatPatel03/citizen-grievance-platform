@@ -3,6 +3,9 @@ package org.example.backend.entity;
 import com.sun.jdi.request.StepRequest;
 import jakarta.persistence.*;
 
+import java.util.HashSet;
+import java.util.Set;
+
 @Entity
 @Table(name = "departments")
 public class Department {
