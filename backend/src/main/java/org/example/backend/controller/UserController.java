@@ -19,6 +19,7 @@ public class UserController {
         this.userService = userService;
     }
 
+    // This endpoint listens for POST requests to create a new user
     @PostMapping("/register")
     public ResponseEntity<User> registerUser(@RequestBody User user) {
         try {
