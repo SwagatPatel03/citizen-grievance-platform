@@ -24,7 +24,7 @@ public class UserController {
     public ResponseEntity<User> registerUser(@RequestBody User user) {
         try {
             User savedUser = userService.registerUser(user);
-            return ResponseEntity.ok(savedUser);
+            return ResponseEntity.ok(savedUser); // Returns HTTP 200 OK with the saved user
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().build();
         }
