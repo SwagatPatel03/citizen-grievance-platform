@@ -45,4 +45,12 @@ public class Department {
     public void setDescription(String description) {
         this.description = description;
     }
+
+    public Set<User> getOfficers() {
+        return officers;
+    }
+
+    public void setOfficers(Set<User> officers) {
+        this.officers = officers;
+    }
 }
