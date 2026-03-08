@@ -19,6 +19,9 @@ public class Department {
     @Column(columnDefinition = "TEXT")
     private String description;
 
+    @ManyToMany(mappedBy = "assignedDepartments", fetch = FetchType.LAZY)
+    private Set<User> officers = new HashSet<>();
+
     public Long getId() {
         return id;
     }
