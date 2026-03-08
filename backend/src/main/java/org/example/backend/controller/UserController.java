@@ -26,7 +26,7 @@ public class UserController {
             User savedUser = userService.registerUser(user);
             return ResponseEntity.ok(savedUser); // Returns HTTP 200 OK with the saved user
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.badRequest().build(); // Returns HTTP 400 Bad Request if email exists
         }
     }
 }
