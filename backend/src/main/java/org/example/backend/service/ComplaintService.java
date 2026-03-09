@@ -47,4 +47,35 @@ public class ComplaintService {
 
         return complaintRepository.save(complaint);
     }
+
+    // Helper method to map Entity to DTO
+    private ComplaintResponseDto mapToDto(Complaint complaint) {
+        ComplaintResponseDto dto = new ComplaintResponseDto();
+        dto.setId(complaint.getId());
+        dto.setTitle(complaint.getTitle());
+        dto.setDescription(complaint.getDescription());
+        dto.setStatus(complaint.getStatus().name());
+        dto.setCitizenName(complaint.getCitizen().getFullName());
+        dto.setDepartmentName(complaint.getDepartment().getName());
+        dto.setCreatedAt(complaint.getCreatedAt());
+        return dto;
+    }
+
+    public List<ComplaintResponseDto> getAllComplaints() {
+        return complaintRepository.findAll().stream()
+                .map(this::mapToDto)
+                .toList();
+    }
+
+    public List<ComplaintResponseDto> getAllComplaintsByCitizen(Long citizenId) {
+        return complaintRepository.findByCitizenId(citizenId).stream()
+                .map(this::mapToDto)
+                .toList();
+    }
+
+    public List<ComplaintResponseDto> getAllComplaintsByDepartment(Long departmentId) {
+        return complaintRepository.findByDepartmentId(departmentId).stream()
+                .map(this::mapToDto)
+                .toList();
+    }
 }
