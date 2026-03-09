@@ -1,6 +1,7 @@
 package org.example.backend.service;
 
 import org.example.backend.dto.ComplaintRequestDto;
+import org.example.backend.dto.ComplaintResponseDto;
 import org.example.backend.entity.Complaint;
 import org.example.backend.entity.Department;
 import org.example.backend.entity.User;
