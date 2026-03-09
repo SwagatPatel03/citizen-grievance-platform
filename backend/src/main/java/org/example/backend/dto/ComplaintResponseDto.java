@@ -11,6 +11,8 @@ public class ComplaintResponseDto {
     private String departmentName;
     private LocalDateTime createdAt;
 
+    public ComplaintResponseDto() {}
+
     public ComplaintResponseDto(Long id, String title, String description, String status, String citizenName, String departmentName, LocalDateTime createdAt) {
         this.id = id;
         this.title = title;
