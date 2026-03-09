@@ -67,7 +67,7 @@ public class ComplaintService {
                 .toList();
     }
 
-    public List<ComplaintResponseDto> getAllComplaintsByCitizen(Long citizenId) {
+    public List<ComplaintResponseDto> getComplaintsByCitizen(Long citizenId) {
         return complaintRepository.findByCitizenId(citizenId).stream()
                 .map(this::mapToDto)
                 .toList();
