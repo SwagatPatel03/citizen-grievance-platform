@@ -73,7 +73,7 @@ public class ComplaintService {
                 .toList();
     }
 
-    public List<ComplaintResponseDto> getAllComplaintsByDepartment(Long departmentId) {
+    public List<ComplaintResponseDto> getComplaintsByDepartment(Long departmentId) {
         return complaintRepository.findByDepartmentId(departmentId).stream()
                 .map(this::mapToDto)
                 .toList();
