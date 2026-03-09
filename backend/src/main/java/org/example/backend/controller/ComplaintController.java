@@ -29,4 +29,22 @@ public class ComplaintController {
             return ResponseEntity.badRequest().body(null);
         }
     }
+
+    // For the Admin Dashboard
+    @GetMapping("/all")
+    public ResponseEntity<List<ComplaintResponseDto>> getAllComplaints() {
+        return ResponseEntity.ok(complaintService.getAllComplaints());
+    }
+
+    // For the Citizen Dashboard
+    @GetMapping("/citizen/{citizenId}")
+    public ResponseEntity<List<ComplaintResponseDto>> getCitizenComplaints(@PathVariable Long citizenId) {
+        return ResponseEntity.ok(complaintService.getComplaintsByCitizen(citizenId));
+    }
+
+    // For the Officer Dashboard
+    @GetMapping("/department/{departmentId}")
+    public ResponseEntity<List<ComplaintResponseDto>> getDepartmentComplaints(@PathVariable Long departmentId) {
+        return ResponseEntity.ok(complaintService.getComplaintsByDepartment(departmentId));
+    }
 }
