@@ -7,4 +7,6 @@ import java.util.List;
 
 public interface ComplaintRepository extends JpaRepository<Complaint,Long> {
     List<Complaint> findByDepartmentId(Long departmentId);
+    // Find all complaints submitted by a single citizen
+    List<Complaint> findByCitizenId(Long citizenId);
 }
