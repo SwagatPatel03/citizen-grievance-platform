@@ -1,6 +1,7 @@
 package org.example.backend.controller;
 
 import org.example.backend.dto.ComplaintRequestDto;
+import org.example.backend.dto.ComplaintResponseDto;
 import org.example.backend.entity.Complaint;
 import org.example.backend.service.ComplaintService;
 import org.springframework.beans.factory.annotation.Autowired;
