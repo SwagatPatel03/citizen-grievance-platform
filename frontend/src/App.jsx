@@ -1,19 +1,28 @@
 import {BrowserRouter as Router, Routes, Route} from "react-router-dom";
+import Navbar from "./components/Navbar.jsx";
 
-const Home = () => <h1>LokShikayat Portal</h1>
-const CitizenDashboard = () => <h1>Citizen Dashboard</h1>
-const OfficerDashboard = () => <h1>Officer Dashboard</h1>
+// Dummy pages to test the routing
+const Home = () => <div className="p-8 text-2xl font-bold text-slate-800">Welcome to LokShikayat</div>
+const CitizenDashboard = () => <div className="p-8 text-2xl font-bold text-slate-800">Citizen Dashboard</div>
+const OfficerDashboard = () => <div className="p-8 text-2xl font-bold text-slate-800">Officer Dashboard</div>
 
 function App() {
     return(
         <Router>
-            <div className="app-container">
-                {/* We will add a persistent Navbar component here later */}
-                <Routes>
-                    <Route path="/" element={<Home />} />
-                    <Route path="/citizen" element={<CitizenDashboard />} />
-                    <Route path="/officer" element={<OfficerDashboard />} />
-                </Routes>
+            {/* The background color of the entire app */}
+            <div className="min-h-screen bg-slate-50 font-sans">
+
+                {/* Persistent Navbar */}
+                <Navbar />
+
+                {/* The main content are where the pages will render */}
+                <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                    <Routes>
+                        <Route path="/" element={<Home />} />
+                        <Route path="/citizen" element={<CitizenDashboard />} />
+                        <Route path="/officer" element={<OfficerDashboard />} />
+                    </Routes>
+                </main>
             </div>
         </Router>
     )
