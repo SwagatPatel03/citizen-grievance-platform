@@ -55,6 +55,10 @@ public class Complaint {
         this.updatedAt = LocalDateTime.now();
     }
 
+    public enum Status {
+        OPEN, IN_PROGRESS, RESOLVED, REJECTED
+    }
+
     public Long getId() {
         return id;
     }
