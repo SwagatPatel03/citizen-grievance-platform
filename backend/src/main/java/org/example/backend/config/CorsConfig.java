@@ -12,7 +12,7 @@ public class CorsConfig implements WebMvcConfigurer {
     // CorsRegistry is a helper class in Spring MVC used to define global Cross-Origin Resource Sharing (CORS) rules
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/api/**") // Apply to all endpoints starting with /api
-                .allowedOrigins("https://localhost:5173") // Default port for Vite React
+                .allowedOrigins("http://localhost:5173") // Default port for Vite React
                 .allowedMethods("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")
                 .allowedHeaders("*")
                 .allowCredentials(true);
