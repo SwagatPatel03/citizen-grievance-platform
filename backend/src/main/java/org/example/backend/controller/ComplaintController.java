@@ -47,4 +47,17 @@ public class ComplaintController {
     public ResponseEntity<List<ComplaintResponseDto>> getDepartmentComplaints(@PathVariable Long departmentId) {
         return ResponseEntity.ok(complaintService.getComplaintsByDepartment(departmentId));
     }
+
+    // For updating the status of a complaint
+    @PatchMapping("/{id}/status")
+    public ResponseEntity<ComplaintResponseDto> updateStatus(
+            @PathVariable Long id, @RequestBody UpdateStatusDto dto
+    ) {
+        try {
+            ComplaintResponseDto updatedComplaint = complaintService.updateComplaintStaus(id, dto.getStatus());
+            return ResponseEntity.ok(updatedComplaint);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(null);
+        }
+    }
 }
