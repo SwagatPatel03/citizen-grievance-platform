@@ -61,6 +61,25 @@ public class ComplaintService {
         return dto;
     }
 
+    public ComplaintResponseDto updateComplaintStaus(Long complaintId, String newStatus) {
+        // 1. Find the existing complaint
+        Complaint complaint = complaintRepository.findById(complaintId)
+                .orElseThrow(() -> new IllegalArgumentException("Complaint with ID " + complaintId + " not found!"));
+        // 2. Safely convert the string to the Status enum
+        try{
+            Complaint.Status statusEnum = Complaint.Status.valueOf(newStatus.toUpperCase());
+            complaint.setStatus(statusEnum);
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Invalid status provided: " + newStatus);
+        }
+
+        // 3. Save to database (the @PreUpdate will automatically update the updatedAt timestamp)
+        Complaint updatedComplaint = complaintRepository.save(complaint);
+
+        // 4. Return the safe DTO so the frontend can immediately update the UI
+        return mapToDto(complaint);
+    }
+
     public List<ComplaintResponseDto> getAllComplaints() {
         return complaintRepository.findAll().stream()
                 .map(this::mapToDto)
