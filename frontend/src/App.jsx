@@ -1,4 +1,4 @@
-import {Route, Router, Routes} from "react-router-dom";
+import {BrowserRouter as Router, Routes, Route} from "react-router-dom";
 
 const Home = () => <h1>LokShikayat Portal</h1>
 const CitizenDashboard = () => <h1>Citizen Dashboard</h1>
