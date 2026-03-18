@@ -1,6 +1,7 @@
 import {BrowserRouter as Router, Routes, Route} from "react-router-dom";
 import Navbar from "./components/Navbar.jsx";
 import ComplaintForm from "./components/ComplaintForm.jsx";
+import ComplaintList from "./components/ComplaintList.jsx";
 
 // Dummy pages to test the routing
 const Home = () => <div className="p-8 text-2xl font-bold text-slate-800">Welcome to LokShikayat</div>
@@ -10,7 +11,12 @@ const CitizenDashboard = () => (
             <h1 className="text-3xl font-bold text-slate-800">Citizen Portal</h1>
             <p className="text-slate-600 mt-2">Manage your civic requests and track resolution progress.</p>
         </div>
-        <ComplaintForm />
+
+        {/* Grid layout to stack them cleanly */}
+        <div className="flex flex-col gap-10">
+            <ComplaintForm />
+            <ComplaintList />
+        </div>
     </div>
 )
 const OfficerDashboard = () => <div className="p-8 text-2xl font-bold text-slate-800">Officer Dashboard</div>
