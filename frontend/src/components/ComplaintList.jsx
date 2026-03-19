@@ -68,7 +68,7 @@ const ComplaintList = () => {
     }
 
     return (
-        <div className="max-w-4xl mx-auto mt-8">
+        <div className="max-w-4xl mx-auto mt-2">
             <h3 className="text-xl font-bold text-slate-800 mb-4 flex items-center gap-2">
                 <Clock className="w-5 h-5 text-[#000080]" /> My Grievance History
             </h3>

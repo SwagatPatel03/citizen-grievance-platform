@@ -67,7 +67,7 @@ const ComplaintForm = () => {
     };
 
     return (
-        <div className="max-w-2xl mx-auto mt-10">
+        <div className="max-w-2xl mx-auto mt-2">
             {/* The Form Card */}
             <div className="bg-white rounded-xl shadow-lg border border-slate-200 overflow-hidden">
 
