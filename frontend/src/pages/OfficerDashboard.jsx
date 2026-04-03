@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { ShieldAlert, CheckCircle2 } from 'lucide-react';
-import { getDepartmentComplaints, updateComplaintStatus } from '../services/api';
+import { getDepartmentComplaints, updateComplaintStatus } from '../services/api.jsx';
 
 const OfficerDashboard = () => {
     const [complaints, setComplaints] = useState([]);
