@@ -41,9 +41,12 @@ const Navbar = () => {
 
                     {/* Right side - Login/Profile Action */}
                     <div className="flex items-center">
-                        <button className="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors shadow-sm flex items-center gap-2">
+                        <Link
+                            to="/login"
+                            className="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors shadow-sm flex items-center gap-2"
+                        >
                             <LogIn className="h-4 w-4" /> Sign In
-                        </button>
+                        </Link>
                     </div>
 
                 </div>
