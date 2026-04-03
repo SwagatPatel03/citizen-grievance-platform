@@ -5,6 +5,7 @@ import ComplaintList from "./components/ComplaintList.jsx";
 import {useState} from "react";
 import {List, PlusCircle} from "lucide-react";
 import OfficerPortal from "./components/OfficerPortal.jsx";
+import AdminDashboard from "./components/AdminDashboard.jsx";
 
 // Dummy pages to test the routing
 const Home = () => <div className="p-8 text-2xl font-bold text-slate-800">Welcome to LokShikayat</div>
@@ -80,6 +81,7 @@ function App() {
                         <Route path="/" element={<Home />} />
                         <Route path="/citizen" element={<CitizenDashboard />} />
                         <Route path="/officer" element={<OfficerDashboard />} />
+                        <Route path="/admin" element={<AdminDashboard />} />
                     </Routes>
                 </main>
             </div>
