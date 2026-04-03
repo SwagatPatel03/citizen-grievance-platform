@@ -41,6 +41,8 @@ public class UserController {
     public ResponseEntity<User> registerUser(@RequestBody User user) {
         try {
             User savedUser = userService.registerUser(user);
+            // Clear the password hash before sending the user object back to the browser
+            savedUser.setPasswordHash(null);
             return ResponseEntity.ok(savedUser); // Returns HTTP 200 OK with the saved user
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().build(); // Returns HTTP 400 Bad Request if email exists
