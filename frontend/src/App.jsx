@@ -4,6 +4,7 @@ import CitizenPortal from "./pages/CitizenPortal.jsx";
 import OfficerDashboard from "./pages/OfficerDashboard.jsx";
 import AdminDashboard from "./pages/AdminDashboard.jsx";
 import Login from "./pages/Login.jsx";
+import ProtectedRoute from "./components/ProtectedRoute.jsx";
 
 // Dummy pages to test the routing
 const Home = () => <div className="p-8 text-2xl font-bold text-slate-800">Welcome to LokShikayat</div>
@@ -20,11 +21,20 @@ function App() {
                 {/* The main content are where the pages will render */}
                 <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                     <Routes>
+                        {/* Public Routes */}
                         <Route path="/" element={<Home />} />
                         <Route path="/login" element={<Login />} />
-                        <Route path="/citizen" element={<CitizenPortal />} />
-                        <Route path="/officer" element={<OfficerDashboard />} />
-                        <Route path="/admin" element={<AdminDashboard />} />
+
+                        {/* Protected Routes */}
+                        <Route path="/citizen" element={<ProtectedRoute allowedRoles={['CITIZEN']}>
+                            <CitizenPortal />
+                        </ProtectedRoute>} />
+                        <Route path="/citizen" element={<ProtectedRoute allowedRoles={['OFFICER', 'ADMIN']}>
+                            <OfficerDashboard />
+                        </ProtectedRoute>} />
+                        <Route path="/citizen" element={<ProtectedRoute allowedRoles={['ADMIN']}>
+                            <AdminDashboard />
+                        </ProtectedRoute>} />
                     </Routes>
                 </main>
             </div>
