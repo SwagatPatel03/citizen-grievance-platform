@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { MapPin, FileText, Send, AlertCircle, CheckCircle2, Navigation } from 'lucide-react';
-import { submitComplaint, getAllDepartments } from '../services/api';
+import { submitComplaint, getAllDepartments } from '../../services/api.jsx';
 
 const ComplaintForm = () => {
     const [departments, setDepartments] = useState([]);

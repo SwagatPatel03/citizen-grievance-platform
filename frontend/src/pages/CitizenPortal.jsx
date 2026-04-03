@@ -1,7 +1,7 @@
 import {useState} from "react";
 import {List, PlusCircle} from "lucide-react";
-import ComplaintForm from "../components/ComplaintForm.jsx";
-import ComplaintList from "../components/ComplaintList.jsx";
+import ComplaintForm from "../components/citizen/ComplaintForm.jsx";
+import ComplaintList from "../components/citizen/ComplaintList.jsx";
 
 const CitizenPortal = () => {
     const [activeTab, setActiveTab] = useState('new') // State to track which tab is open

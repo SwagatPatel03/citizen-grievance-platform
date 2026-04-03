@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Clock, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
-import { getCitizenComplaints } from '../services/api';
+import { getCitizenComplaints } from '../../services/api.jsx';
 
 const ComplaintList = () => {
     // JSDoc is a special comment syntax that acts like a manual instruction for the IDE.
