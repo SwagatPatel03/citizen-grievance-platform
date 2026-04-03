@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react';
 import { MapPin, FileText, Send, AlertCircle, CheckCircle2, Navigation } from 'lucide-react';
 import { submitComplaint, getAllDepartments } from '../../services/api.jsx';
 
-const ComplaintForm = () => {
+// 1. Accept the prop here
+const ComplaintForm = ({ onComplaintSubmitted, onSuccessSwitchTab }) => {
     const [departments, setDepartments] = useState([]);
     const [status, setStatus] = useState('idle'); // idle, submitting, success, error
 
@@ -12,8 +13,7 @@ const ComplaintForm = () => {
         description: '',
         departmentId: '',
         latitude: '',
-        longitude: '',
-        citizenId: 1
+        longitude: ''
     });
 
     // Fetch departments when the component loads to populate the dropdown
@@ -52,15 +52,33 @@ const ComplaintForm = () => {
         e.preventDefault();
         setStatus('submitting');
 
+        // Grab the actual logged-in user ID so the ticket is assigned to them!
+        const currentUserId = localStorage.getItem('user_id');
+        const submissionData = {
+            ...formData,
+            citizenId: parseInt(currentUserId, 10),
+            departmentId: parseInt(formData.departmentId, 10)
+        };
+
         try {
-            await submitComplaint(formData);
+            await submitComplaint(submissionData);
             setStatus('success');
+
+            // 2. NEW: Trigger the parent to refresh the table!
+            if (onComplaintSubmitted) {
+                onComplaintSubmitted();
+            }
+
             // Reset form after 2 seconds
             setTimeout(() => {
                 setStatus('idle');
                 setFormData({ ...formData, title: '', description: '', departmentId: '', latitude: '', longitude: '' });
+                if (onSuccessSwitchTab) {
+                    onSuccessSwitchTab();
+                }
             }, 3000);
         } catch (error) {
+            console.error("Submission Error: ", error); // Added so you can see backend errors in the console!
             setStatus('error');
             setTimeout(() => setStatus('idle'), 3000);
         }

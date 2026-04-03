@@ -1,4 +1,4 @@
-import {BellRing} from "lucide-react";
+import {BellRing, Megaphone, Calendar} from "lucide-react";
 
 const NoticeBoard = () => {
     // For the MVP, we use static data tailored to localized civic events.
