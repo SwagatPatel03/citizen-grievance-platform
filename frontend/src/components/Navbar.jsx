@@ -34,6 +34,9 @@ const Navbar = () => {
                         <Link to="/officer" className={`px-3 py-2 rounded-md text-sm font-medium flex items-center gap-2 ${isActive('/officer')}`}>
                             <LayoutDashboard className="h-4 w-4" /> Officer Dashboard
                         </Link>
+                        <Link to="/admin" className={`px-3 py-2 rounded-md text-sm font-medium flex items-center gap-2 ${isActive('/admin')}`}>
+                            <User className="h-4 w-4" /> Admin Dashboard
+                        </Link>
                     </div>
 
                     {/* Right side - Login/Profile Action */}
