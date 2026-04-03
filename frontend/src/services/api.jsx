@@ -1,6 +1,5 @@
 // Create a basic Axios instance pointing to our Spring Boot server
 import axios from "axios";
-import {data} from "react-router-dom";
 
 const apiClient = axios.create({
     baseURL: "http://localhost:8080/api",
@@ -9,10 +8,27 @@ const apiClient = axios.create({
     }
 });
 
+// The Axios Interceptor
+apiClient.interceptors.request.use(
+    (config) => {
+        // Look for the token in the browser's local Storage
+        const token = localStorage.getItem('jwt_token');
+        if(token) {
+            // If found, attach it as a Bearer token
+            config.headers['Authorization'] = `Bearer ${token}`;
+        }
+        return config;
+    },
+    (error) => {
+        return Promise.reject(error);
+    }
+);
+
 // We map out our backend endpoints here
 
 // ---- USER ENDPOINTS ----
 export const registerUser = (userData) => apiClient.post("/users/register", userData)
+export const loginUser = (credentials) => apiClient.post("/users/login", credentials)
 
 // ---- DEPARTMENT ENDPOINTS ----
 export const createDepartment = (departmentData) => apiClient.post("/departments/create", departmentData)
