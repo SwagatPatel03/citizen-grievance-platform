@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { ShieldAlert, CheckCircle2 } from 'lucide-react';
 import { getDepartmentComplaints, updateComplaintStatus } from '../services/api';
 
-const OfficerPortal = () => {
+const OfficerDashboard = () => {
     const [complaints, setComplaints] = useState([]);
     const [loading, setLoading] = useState(true);
 
@@ -106,4 +106,4 @@ const OfficerPortal = () => {
     );
 };
 
-export default OfficerPortal;
+export default OfficerDashboard;
