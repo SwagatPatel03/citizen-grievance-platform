@@ -3,6 +3,7 @@ import Navbar from "./components/Navbar.jsx";
 import CitizenPortal from "./pages/CitizenPortal.jsx";
 import OfficerDashboard from "./pages/OfficerDashboard.jsx";
 import AdminDashboard from "./pages/AdminDashboard.jsx";
+import Login from "./pages/Login.jsx";
 
 // Dummy pages to test the routing
 const Home = () => <div className="p-8 text-2xl font-bold text-slate-800">Welcome to LokShikayat</div>
@@ -20,6 +21,7 @@ function App() {
                 <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                     <Routes>
                         <Route path="/" element={<Home />} />
+                        <Route path="/login" element={<Login />} />
                         <Route path="/citizen" element={<CitizenPortal />} />
                         <Route path="/officer" element={<OfficerDashboard />} />
                         <Route path="/admin" element={<AdminDashboard />} />
