@@ -1,7 +1,14 @@
-import { Clock, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
+import React from 'react';
+import { useState } from 'react';
+import { Clock, CheckCircle2, AlertCircle, Loader2, ChevronDown, ChevronUp } from 'lucide-react';
 
-// Notice it now receives `complaints` and `loading` as props!
 const ComplaintList = ({ complaints = [], loading = false }) => {
+    // State to track which row is currently expanded
+    const [expandedId, setExpandedId] = useState(null);
+
+    const toggleExpand = (id) => {
+        setExpandedId(expandedId === id ? null : id);
+    };
 
     const getStatusBadge = (status) => {
         switch (status) {
@@ -12,6 +19,13 @@ const ComplaintList = ({ complaints = [], loading = false }) => {
         }
     };
 
+    // Helper function to determine the progress bar state
+    const getProgressStep = (status) => {
+        if (status === 'RESOLVED') return 3;
+        if (status === 'IN_PROGRESS') return 2;
+        return 1; // OPEN
+    };
+
     if (loading) return <div className="text-center py-10 text-slate-500">Loading your grievances...</div>;
 
     return (
@@ -20,27 +34,88 @@ const ComplaintList = ({ complaints = [], loading = false }) => {
                 <table className="w-full text-left border-collapse">
                     <thead>
                     <tr className="bg-slate-50 border-b border-slate-200 text-sm text-slate-600">
-                        <th className="p-4 font-semibold">ID</th>
+                        <th className="p-4 font-semibold w-16">ID</th>
                         <th className="p-4 font-semibold">Title</th>
                         <th className="p-4 font-semibold">Department</th>
                         <th className="p-4 font-semibold">Date Submitted</th>
                         <th className="p-4 font-semibold">Status</th>
+                        <th className="p-4 font-semibold w-10"></th>
                     </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100">
                     {complaints.length === 0 ? (
-                        <tr><td colSpan="5" className="p-8 text-center text-slate-500">No grievances submitted yet.</td></tr>
+                        <tr><td colSpan="6" className="p-8 text-center text-slate-500">No grievances submitted yet.</td></tr>
                     ) : (
                         complaints.map((complaint) => (
-                            <tr key={complaint.id} className="hover:bg-slate-50 transition-colors">
-                                <td className="p-4 text-sm text-slate-500">#{complaint.id}</td>
-                                <td className="p-4 text-sm font-medium text-slate-800">{complaint.title}</td>
-                                <td className="p-4 text-sm text-slate-600">{complaint.departmentName}</td>
-                                <td className="p-4 text-sm text-slate-500">
-                                    {new Date(complaint.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
-                                </td>
-                                <td className="p-4">{getStatusBadge(complaint.status)}</td>
-                            </tr>
+                            <React.Fragment key={complaint.id}>
+                                {/* Main Row */}
+                                <tr
+                                    onClick={() => toggleExpand(complaint.id)}
+                                    className={`hover:bg-slate-50 transition-colors cursor-pointer ${expandedId === complaint.id ? 'bg-slate-50' : ''}`}
+                                >
+                                    <td className="p-4 text-sm text-slate-500">#{complaint.id}</td>
+                                    <td className="p-4 text-sm font-medium text-slate-800">{complaint.title}</td>
+                                    <td className="p-4 text-sm text-slate-600">{complaint.departmentName || complaint.department?.name || 'Assigned'}</td>
+                                    <td className="p-4 text-sm text-slate-500">
+                                        {new Date(complaint.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
+                                    </td>
+                                    <td className="p-4">{getStatusBadge(complaint.status)}</td>
+                                    <td className="p-4 text-slate-400">
+                                        {expandedId === complaint.id ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
+                                    </td>
+                                </tr>
+
+                                {/* Expandable Timeline Details */}
+                                {expandedId === complaint.id && (
+                                    <tr className="bg-slate-50/50 border-b border-slate-200">
+                                        <td colSpan="6" className="p-6">
+                                            <div className="max-w-3xl mx-auto">
+                                                <h4 className="text-sm font-semibold text-slate-700 mb-4">Tracking Timeline</h4>
+
+                                                {/* The Stepper UI */}
+                                                <div className="relative flex justify-between items-center w-full">
+                                                    {/* Background Line */}
+                                                    <div className="absolute left-0 top-1/2 transform -translate-y-1/2 w-full h-1 bg-slate-200 rounded-full z-0"></div>
+
+                                                    {/* Active Progress Line */}
+                                                    <div
+                                                        className="absolute left-0 top-1/2 transform -translate-y-1/2 h-1 bg-green-500 rounded-full z-0 transition-all duration-500"
+                                                        style={{ width: `${((getProgressStep(complaint.status) - 1) / 2) * 100}%` }}
+                                                    ></div>
+
+                                                    {/* Step 1: Submitted */}
+                                                    <div className="relative z-10 flex flex-col items-center gap-2">
+                                                        <div className="w-8 h-8 rounded-full flex items-center justify-center bg-green-500 text-white shadow-sm">
+                                                            <CheckCircle2 className="w-4 h-4" />
+                                                        </div>
+                                                        <span className="text-xs font-medium text-slate-700">Submitted</span>
+                                                    </div>
+
+                                                    {/* Step 2: Under Review */}
+                                                    <div className="relative z-10 flex flex-col items-center gap-2">
+                                                        <div className={`w-8 h-8 rounded-full flex items-center justify-center shadow-sm transition-colors ${getProgressStep(complaint.status) >= 2 ? 'bg-green-500 text-white' : 'bg-white text-slate-400 border-2 border-slate-200'}`}>
+                                                            {getProgressStep(complaint.status) >= 2 ? <CheckCircle2 className="w-4 h-4" /> : <Clock className="w-4 h-4" />}
+                                                        </div>
+                                                        <span className={`text-xs font-medium ${getProgressStep(complaint.status) >= 2 ? 'text-slate-700' : 'text-slate-400'}`}>Under Review</span>
+                                                    </div>
+
+                                                    {/* Step 3: Resolved */}
+                                                    <div className="relative z-10 flex flex-col items-center gap-2">
+                                                        <div className={`w-8 h-8 rounded-full flex items-center justify-center shadow-sm transition-colors ${getProgressStep(complaint.status) === 3 ? 'bg-green-500 text-white' : 'bg-white text-slate-400 border-2 border-slate-200'}`}>
+                                                            <CheckCircle2 className="w-4 h-4" />
+                                                        </div>
+                                                        <span className={`text-xs font-medium ${getProgressStep(complaint.status) === 3 ? 'text-slate-700' : 'text-slate-400'}`}>Resolved</span>
+                                                    </div>
+                                                </div>
+
+                                                <div className="mt-6 p-4 bg-white rounded-lg border border-slate-200">
+                                                    <p className="text-sm text-slate-600"><span className="font-semibold text-slate-800">Description:</span> {complaint.description}</p>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                )}
+                            </React.Fragment>
                         ))
                     )}
                     </tbody>

@@ -19,7 +19,7 @@ function App() {
                 <Navbar />
 
                 {/* The main content are where the pages will render */}
-                <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                <main className="w-full flex-grow">
                     <Routes>
                         {/* Public Routes */}
                         <Route path="/" element={<Home />} />

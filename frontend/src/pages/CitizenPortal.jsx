@@ -4,14 +4,18 @@ import { getCitizenComplaints } from '../services/api';
 import ComplaintForm from '../components/citizen/ComplaintForm';
 import ComplaintList from '../components/citizen/ComplaintList';
 import NoticeBoard from '../components/citizen/NoticeBoard';
+import EmergencyDirectory from '../components/citizen/EmergencyDirectory';
 import CivicImpactStats from '../components/citizen/CivicImpactStats';
+import KnowledgeBase from '../components/citizen/KnowledgeBase';
+import RatingBanner from '../components/citizen/RatingBanner';
+import LocalFeed from "../components/citizen/LocalFeed.jsx";
+import LokMitraChat from "../components/citizen/LokMitraChat.jsx";
 
 const CitizenPortal = () => {
     const [activeTab, setActiveTab] = useState('history');
     const [complaints, setComplaints] = useState([]);
     const [loading, setLoading] = useState(true);
 
-    // We pull the logged-in user's ID directly from local storage now!
     const citizenId = localStorage.getItem('user_id');
     const citizenName = localStorage.getItem('user_name');
 
@@ -31,38 +35,53 @@ const CitizenPortal = () => {
         if (citizenId) fetchComplaints();
     }, [citizenId]);
 
-    return (
-        <div className="py-6 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    // Determine if we should show the rating banner (if any complaint is RESOLVED)
+    const hasResolvedComplaint = complaints.some(c => c.status === 'RESOLVED');
 
-            {/* Header Section */}
-            <div className="mb-8">
-                <h1 className="text-3xl font-bold text-slate-800">Welcome back, {citizenName}</h1>
-                <p className="text-slate-600 mt-2">Manage your civic requests and stay updated with local broadcasts.</p>
+    return (
+        // 1. TRUE FLUID WRAPPER: Removed all max-w caps. Uses dynamic padding to hug the edges.
+        <div className="py-8 w-full min-h-screen bg-slate-50 px-4 sm:px-8 lg:px-12 2xl:px-16">
+
+            {/* 2. HEADER: Spans the full width of the new grid */}
+            <div className="mb-8 w-full">
+                <h1 className="text-3xl font-bold text-slate-800 tracking-tight">{citizenName}</h1>
+                <p className="text-sm text-slate-500 mt-1">Manage your civic requests and stay updated with local broadcasts.</p>
             </div>
 
-            {/* Main Grid Layout */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {/* 3. THE 12-COLUMN FLUID GRID: Spreads across 100% of the screen */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 w-full">
 
-                {/* Left Column: Stats & Main Content (Takes up 2/3 of the space on desktop) */}
-                <div className="lg:col-span-2 flex flex-col gap-6">
+                {/* ================= LEFT SIDEBAR (25% Width) ================= */}
+                {/* Hugs the far left edge of the screen */}
+                <div className="hidden lg:block lg:col-span-3">
+                    <div className="sticky top-24 flex flex-col gap-6">
+                        <NoticeBoard />
+                        <LocalFeed />
+                    </div>
+                </div>
 
-                    {/* Feature 1: Civic Impact Stats */}
+                {/* ================= MAIN FEED (50% Width) ================= */}
+                {/* Unconstrained to fill the exact center half of the monitor */}
+                <div className="lg:col-span-6 flex flex-col gap-6 w-full">
+
+                    {hasResolvedComplaint && <RatingBanner />}
+
                     <CivicImpactStats complaints={complaints} />
 
                     {/* Tab Navigation */}
-                    <div className="flex space-x-2 bg-slate-200/60 p-1.5 rounded-xl w-fit">
+                    <div className="flex space-x-2 bg-white border border-slate-200 p-1.5 rounded-xl w-full">
                         <button
                             onClick={() => setActiveTab('history')}
-                            className={`flex items-center gap-2 px-6 py-2.5 text-sm font-semibold rounded-lg transition-all ${
-                                activeTab === 'history' ? 'bg-white text-[#000080] shadow-sm' : 'text-slate-500 hover:text-slate-800'
+                            className={`flex-1 flex justify-center items-center gap-2 px-6 py-2.5 text-sm font-semibold rounded-lg transition-all ${
+                                activeTab === 'history' ? 'bg-slate-100 text-[#000080]' : 'text-slate-500 hover:text-slate-800 hover:bg-slate-50'
                             }`}
                         >
                             <List className="w-4 h-4" /> My History
                         </button>
                         <button
                             onClick={() => setActiveTab('new')}
-                            className={`flex items-center gap-2 px-6 py-2.5 text-sm font-semibold rounded-lg transition-all ${
-                                activeTab === 'new' ? 'bg-white text-[#000080] shadow-sm' : 'text-slate-500 hover:text-slate-800'
+                            className={`flex-1 flex justify-center items-center gap-2 px-6 py-2.5 text-sm font-semibold rounded-lg transition-all ${
+                                activeTab === 'new' ? 'bg-slate-100 text-[#000080]' : 'text-slate-500 hover:text-slate-800 hover:bg-slate-50'
                             }`}
                         >
                             <PlusCircle className="w-4 h-4" /> New Grievance
@@ -70,14 +89,13 @@ const CitizenPortal = () => {
                     </div>
 
                     {/* Content Area */}
-                    <div className="transition-all duration-300 min-h-[400px]">
+                    <div className="transition-all duration-300 min-h-[400px] w-full">
                         {activeTab === 'history' ? (
                             <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
                                 <ComplaintList complaints={complaints} loading={loading} />
                             </div>
                         ) : (
                             <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-                                {/* Note: We'd normally pass a callback to ComplaintForm to re-fetch data upon submission */}
                                 <ComplaintForm
                                     onComplaintSubmitted={fetchComplaints}
                                     onSuccessSwitchTab={() => setActiveTab('history')}
@@ -87,13 +105,21 @@ const CitizenPortal = () => {
                     </div>
                 </div>
 
-                {/* Right Column: The Sidebar (Takes up 1/3 of the space on desktop) */}
-                <div className="lg:col-span-1">
-                    {/* Feature 2: Official Notice Board */}
-                    <div className="sticky top-24">
-                        <NoticeBoard />
+                {/* ================= RIGHT SIDEBAR (25% Width) ================= */}
+                {/* Hugs the far right edge of the screen */}
+                <div className="hidden lg:block lg:col-span-3">
+                    <div className="sticky top-24 flex flex-col gap-6">
+                        <KnowledgeBase />
+                        <EmergencyDirectory />
                     </div>
                 </div>
+
+                {/* Mobile Fallback */}
+                <div className="block lg:hidden w-full mt-6">
+                    <NoticeBoard />
+                </div>
+
+                <LokMitraChat />
 
             </div>
         </div>
