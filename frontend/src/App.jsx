@@ -5,9 +5,8 @@ import OfficerDashboard from "./pages/OfficerDashboard.jsx";
 import AdminDashboard from "./pages/AdminDashboard.jsx";
 import Login from "./pages/Login.jsx";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
-
-// Dummy pages to test the routing
-const Home = () => <div className="p-8 text-2xl font-bold text-slate-800">Welcome to LokShikayat</div>
+import Home from "./pages/Home.jsx";
+import Register from "./pages/Register.jsx";
 
 function App() {
     return(
@@ -24,6 +23,7 @@ function App() {
                         {/* Public Routes */}
                         <Route path="/" element={<Home />} />
                         <Route path="/login" element={<Login />} />
+                        <Route path="/register" element={<Register />} />
 
                         {/* Protected Routes */}
                         <Route path="/citizen" element={<ProtectedRoute allowedRoles={['CITIZEN']}>

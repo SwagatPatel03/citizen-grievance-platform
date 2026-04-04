@@ -1,6 +1,6 @@
 package org.example.backend.dto;
 
-public class RegisterRequest {
+public class RegisterRequestDto {
     private String name;
     private String email;
     private String password;

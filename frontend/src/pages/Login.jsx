@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Lock, Mail, ShieldCheck, AlertCircle } from 'lucide-react';
+import { useNavigate, Link } from 'react-router-dom';
+import { Lock, Mail, ShieldCheck, AlertCircle, ArrowRight } from 'lucide-react';
 import { loginUser } from '../services/api';
 
 const Login = () => {
@@ -104,6 +104,15 @@ const Login = () => {
                     >
                         {loading ? 'Authenticating...' : 'Sign In'}
                     </button>
+
+                    <div className="mt-8 pt-6 border-t border-slate-100 text-center">
+                        <p className="text-sm text-slate-600">
+                            Don't have an account yet?{' '}
+                            <Link to="/register" className="font-semibold text-[#000080] hover:text-blue-700 transition-colors inline-flex items-center gap-1">
+                                Create an Account <ArrowRight className="w-3 h-3" />
+                            </Link>
+                        </p>
+                    </div>
                 </form>
             </div>
         </div>

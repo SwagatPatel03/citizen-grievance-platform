@@ -2,6 +2,8 @@ package org.example.backend.controller;
 
 import org.example.backend.dto.AuthResponseDto;
 import org.example.backend.dto.LoginRequestDto;
+import org.example.backend.dto.RegisterRequestDto;
+import org.example.backend.entity.Role;
 import org.example.backend.entity.User;
 import org.example.backend.repository.UserRepository;
 import org.example.backend.security.JwtUtil;
@@ -38,15 +40,29 @@ public class UserController {
 
     // This endpoint listens for POST requests to create a new user
     @PostMapping("/register")
-    public ResponseEntity<User> registerUser(@RequestBody User user) {
-        try {
-            User savedUser = userService.registerUser(user);
-            // Clear the password hash before sending the user object back to the browser
-            savedUser.setPasswordHash(null);
-            return ResponseEntity.ok(savedUser); // Returns HTTP 200 OK with the saved user
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().build(); // Returns HTTP 400 Bad Request if email exists
-        }
+    public ResponseEntity<?> registerUser(@RequestBody RegisterRequestDto request) {
+       try {
+           // 1. Map the DTO securely to a new User entity
+           User user = new User();
+           user.setFullName(request.getName());
+           user.setEmail(request.getEmail());
+           user.setPasswordHash(request.getPassword());
+
+           // 2. Force the role to CITIZEN, ignoring anything else
+           user.setRole(Role.CITIZEN);
+
+           // 3. Save the user
+           User savedUser = userService.registerUser(user);
+
+           // 4. Clear the password has before returning
+           savedUser.setPasswordHash(null);
+
+           return ResponseEntity.ok(savedUser);
+       } catch (IllegalArgumentException e) {
+           return ResponseEntity.badRequest().body("Registration failed: Email may already be in use.");
+       } catch (Exception e) {
+           return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred during registration.");
+       }
     }
 
     @PostMapping("/login")

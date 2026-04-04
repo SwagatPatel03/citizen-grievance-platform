@@ -1,5 +1,5 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { ShieldCheck, Home, User, LayoutDashboard, LogIn, LogOut } from 'lucide-react';
+import {ShieldCheck, Home, User, LayoutDashboard, LogIn, LogOut, UserPlus} from 'lucide-react';
 
 const Navbar = () => {
     const location = useLocation();
@@ -61,7 +61,7 @@ const Navbar = () => {
                         )}
                     </div>
 
-                    <div className="flex items-center">
+                    <div className="flex items-center gap-3">
                         {/* Toggle between Sign In and Log Out */}
                         {isAuthenticated ? (
                             <button
@@ -71,12 +71,21 @@ const Navbar = () => {
                                 <LogOut className="h-4 w-4" /> Sign Out
                             </button>
                         ) : (
-                            <Link
-                                to="/login"
-                                className="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors shadow-sm flex items-center gap-2"
-                            >
-                                <LogIn className="h-4 w-4" /> Sign In
-                            </Link>
+                            <>
+                                <Link
+                                    to="/login"
+                                    className="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors shadow-sm flex items-center gap-2"
+                                >
+                                    <LogIn className="h-4 w-4" /> Sign In
+                                </Link>
+
+                                <Link
+                                    to="/register"
+                                    className="bg-[#046A38] hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors shadow-sm flex items-center gap-2"
+                                >
+                                    <UserPlus className="h-4 w-4" /> Register
+                                </Link>
+                            </>
                         )}
                     </div>
 
