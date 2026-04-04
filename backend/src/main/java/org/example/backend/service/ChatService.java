@@ -20,7 +20,7 @@ public class ChatService {
     private final RestTemplate restTemplate = new RestTemplate();
 
     public String getLokMitraResponse(String userMessage) {
-        String url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.0-flash:generateContent?key=" + apiKey;
+        String url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=" + apiKey;
 
         // 1. Give the AI context
         String systemPrompt = "You are LokMitra, an official AI civic assistant for the LokShikayat GovTech platform in India. " +
