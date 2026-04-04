@@ -43,4 +43,7 @@ export const getDepartmentComplaints = (departmentId) => apiClient.get(`/complai
 // PATCH method for updating complaint status
 export const updateComplaintStatus = (id, status) => apiClient.patch(`/complaints/${id}/status`, {status})
 
+// ---- AI CHAT ENDPOINTS ----
+export const askLokMitra = (message) => apiClient.post('/chat', { message });
+
 export default apiClient;
