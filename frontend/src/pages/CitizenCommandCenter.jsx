@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { 
   AlertTriangle, ShieldCheck, TrendingUp, CheckCircle2, 
-  FileText, ClipboardList, Building2, MapPin 
+  FileText, ClipboardList, Building2, MapPin, Home, LogOut
 } from 'lucide-react';
 import { getCitizenComplaints } from '../services/api';
 
@@ -33,6 +34,7 @@ const mockCommunityAlerts = [
 
 // ==================== MAIN COMPONENT ====================
 const CitizenCommandCenter = () => {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('my-grievances');
   const [complaints, setComplaints] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -41,17 +43,27 @@ const CitizenCommandCenter = () => {
   const citizenId = localStorage.getItem('user_id');
   const citizenName = localStorage.getItem('user_name') || mockUserData.name;
 
+  const handleLogout = () => {
+    localStorage.clear();
+    navigate('/login');
+  };
+
   const fetchComplaints = useCallback(async () => {
+    if (!citizenId) {
+      setLoading(false);
+      setComplaints([]);
+      return;
+    }
+    
     try {
       setLoading(true);
       const response = await getCitizenComplaints(citizenId);
-      setComplaints(response.data);
-      if (response.data.length > 0 && !selectedComplaint) {
+      setComplaints(response.data || []);
+      if (response.data && response.data.length > 0 && !selectedComplaint) {
         setSelectedComplaint(response.data[0]);
       }
     } catch (error) {
       console.error("Failed to fetch complaints", error);
-      // Use empty array for graceful handling
       setComplaints([]);
     } finally {
       setLoading(false);
@@ -59,13 +71,13 @@ const CitizenCommandCenter = () => {
   }, [citizenId, selectedComplaint]);
 
   useEffect(() => {
-    if (citizenId) fetchComplaints();
-  }, [citizenId, fetchComplaints]);
+    fetchComplaints();
+  }, [fetchComplaints]);
 
   const stats = {
-    civicTrustScore: mockUserData.civicTrustScore,
-    totalFiled: complaints.length || mockUserData.totalFiled,
-    resolved: complaints.filter(c => c.status === 'RESOLVED').length || mockUserData.resolved
+    civicTrustScore: 87, // Will be fetched from user profile API
+    totalFiled: complaints.length,
+    resolved: complaints.filter(c => c.status === 'RESOLVED').length
   };
 
   const tabs = [
@@ -109,9 +121,13 @@ const CitizenCommandCenter = () => {
             
             {/* Left: Logo & Welcome */}
             <div className="flex items-center gap-4">
-              <div className="bg-blue-600/20 p-3 rounded-xl border border-blue-500/30">
+              <button 
+                onClick={() => navigate('/')}
+                className="bg-blue-600/20 p-3 rounded-xl border border-blue-500/30 hover:bg-blue-600/30 transition-colors"
+                title="Go to Home"
+              >
                 <ShieldCheck className="w-8 h-8 text-blue-400" />
-              </div>
+              </button>
               <div>
                 <h1 className="text-xl font-bold text-white tracking-tight">
                   Welcome, {citizenName}
@@ -120,6 +136,24 @@ const CitizenCommandCenter = () => {
                   Citizen Command Center • LokShikayat
                 </p>
               </div>
+            </div>
+
+            {/* Center: Navigation */}
+            <div className="hidden md:flex items-center gap-2">
+              <button
+                onClick={() => navigate('/')}
+                className="flex items-center gap-2 px-4 py-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors text-sm font-medium"
+              >
+                <Home className="w-4 h-4" />
+                Home
+              </button>
+              <button
+                onClick={handleLogout}
+                className="flex items-center gap-2 px-4 py-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors text-sm font-medium"
+              >
+                <LogOut className="w-4 h-4" />
+                Sign Out
+              </button>
             </div>
 
             {/* Right: Glass-morphic Stats Row */}
@@ -199,6 +233,7 @@ const CitizenCommandCenter = () => {
               loading={loading}
               selectedComplaint={selectedComplaint}
               onSelectComplaint={setSelectedComplaint}
+              onNavigateToLodge={() => setActiveTab('lodge-grievance')}
             />
           )}
           {activeTab === 'lodge-grievance' && (

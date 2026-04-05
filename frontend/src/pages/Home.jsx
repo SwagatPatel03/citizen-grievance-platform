@@ -1,68 +1,345 @@
-import { ArrowRight, ShieldCheck, CheckCircle2, Clock, BarChart3 } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { 
+  ArrowRight, ShieldCheck, CheckCircle2, Clock, BarChart3, 
+  Users, FileText, Zap, Globe, Phone, Mail, MapPin,
+  ChevronRight, Shield, Bell, Award
+} from 'lucide-react';
 
 const Home = () => {
+    const navigate = useNavigate();
+    const isAuthenticated = !!localStorage.getItem('jwt_token');
+    const userRole = localStorage.getItem('user_role');
+
+    const handleGetStarted = () => {
+        if (isAuthenticated && userRole === 'CITIZEN') {
+            navigate('/citizen');
+        } else if (isAuthenticated) {
+            navigate('/officer');
+        } else {
+            navigate('/register');
+        }
+    };
+
     const features = [
-        { icon: CheckCircle2, title: 'Track Progress', description: 'Real-time status updates' },
-        { icon: Clock, title: 'Fast Resolution', description: 'SLA-guaranteed timelines' },
-        { icon: BarChart3, title: 'Transparency', description: 'Full visibility on actions' }
+        { 
+            icon: FileText, 
+            title: 'Easy Filing', 
+            description: 'Submit grievances in minutes with our streamlined digital forms',
+            color: 'blue'
+        },
+        { 
+            icon: Clock, 
+            title: 'SLA Tracking', 
+            description: 'Monitor resolution timelines with guaranteed service levels',
+            color: 'amber'
+        },
+        { 
+            icon: Bell, 
+            title: 'Real-time Updates', 
+            description: 'Get instant notifications on your grievance status',
+            color: 'emerald'
+        },
+        { 
+            icon: Shield, 
+            title: 'Secure & Private', 
+            description: 'Your data is protected with enterprise-grade security',
+            color: 'slate'
+        }
+    ];
+
+    const stats = [
+        { value: '50,000+', label: 'Grievances Resolved', icon: CheckCircle2 },
+        { value: '48 hrs', label: 'Avg. Response Time', icon: Clock },
+        { value: '95%', label: 'Citizen Satisfaction', icon: Award },
+        { value: '25+', label: 'Departments Connected', icon: Globe }
+    ];
+
+    const departments = [
+        'Roads & Infrastructure',
+        'Water Supply',
+        'Electricity Board',
+        'Sanitation & Waste',
+        'Public Health',
+        'Urban Planning'
     ];
 
     return (
-        <div className="min-h-[calc(100vh-64px)] flex flex-col">
+        <div className="min-h-screen bg-white">
+            
             {/* Hero Section */}
-            <div className="flex-1 flex flex-col items-center justify-center text-center px-4 py-16 bg-gradient-to-b from-slate-50 to-white">
-                <div className="bg-blue-600/10 p-4 rounded-2xl mb-6 border border-blue-100">
-                    <ShieldCheck className="w-14 h-14 text-blue-600" />
-                </div>
-                <h1 className="text-4xl md:text-6xl font-bold text-slate-900 tracking-tight mb-4 text-balance">
-                    LokShikayat
-                </h1>
-                <p className="text-lg md:text-xl text-slate-600 max-w-2xl mb-10 leading-relaxed">
-                    The transparent, secure, and AI-powered grievance redressal portal.
-                    Report local issues and track their resolution in real-time.
-                </p>
+            <section className="relative overflow-hidden">
+                {/* Background Pattern */}
+                <div className="absolute inset-0 bg-gradient-to-br from-slate-50 via-white to-blue-50" />
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(59,130,246,0.05),transparent_50%)]" />
                 
-                <div className="flex flex-col sm:flex-row gap-4 mb-12">
-                    <Link
-                        to="/citizen"
-                        className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all shadow-lg shadow-blue-600/20 flex items-center justify-center gap-2 hover:scale-105"
-                    >
-                        Open Command Center <ArrowRight className="w-5 h-5" />
-                    </Link>
-                    <Link
-                        to="/register"
-                        className="bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 px-8 py-4 rounded-xl font-semibold text-lg transition-colors shadow-sm flex items-center justify-center"
-                    >
-                        Create Account
-                    </Link>
-                </div>
+                <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-24 lg:pt-24 lg:pb-32">
+                    <div className="grid lg:grid-cols-2 gap-12 items-center">
+                        
+                        {/* Left Content */}
+                        <div className="text-center lg:text-left">
+                            <div className="inline-flex items-center gap-2 bg-blue-50 border border-blue-100 rounded-full px-4 py-2 mb-6">
+                                <span className="flex h-2 w-2">
+                                    <span className="animate-ping absolute inline-flex h-2 w-2 rounded-full bg-blue-400 opacity-75"></span>
+                                    <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
+                                </span>
+                                <span className="text-sm font-medium text-blue-700">Digital India Initiative</span>
+                            </div>
+                            
+                            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-slate-900 tracking-tight mb-6 text-balance">
+                                Your Voice,{' '}
+                                <span className="text-blue-600">Our Priority</span>
+                            </h1>
+                            
+                            <p className="text-lg sm:text-xl text-slate-600 max-w-xl mb-8 leading-relaxed mx-auto lg:mx-0">
+                                LokShikayat is the AI-powered civic grievance platform that connects citizens directly 
+                                with government departments for faster, transparent issue resolution.
+                            </p>
+                            
+                            <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+                                <button
+                                    onClick={handleGetStarted}
+                                    className="group bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all shadow-lg shadow-blue-600/25 flex items-center justify-center gap-2"
+                                >
+                                    {isAuthenticated ? 'Open Dashboard' : 'Get Started Free'}
+                                    <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                                </button>
+                                <Link
+                                    to="/login"
+                                    className="bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 px-8 py-4 rounded-xl font-semibold text-lg transition-colors flex items-center justify-center"
+                                >
+                                    Sign In
+                                </Link>
+                            </div>
 
-                {/* Quick Features */}
-                <div className="flex flex-wrap justify-center gap-6 max-w-2xl">
-                    {features.map((feature, index) => {
-                        const Icon = feature.icon;
-                        return (
-                            <div key={index} className="flex items-center gap-3 text-left">
-                                <div className="bg-emerald-50 p-2 rounded-lg">
-                                    <Icon className="w-5 h-5 text-emerald-600" />
+                            {/* Trust Indicators */}
+                            <div className="mt-10 flex flex-wrap items-center gap-6 justify-center lg:justify-start text-sm text-slate-500">
+                                <div className="flex items-center gap-2">
+                                    <CheckCircle2 className="w-5 h-5 text-emerald-500" />
+                                    <span>100% Free Service</span>
                                 </div>
-                                <div>
-                                    <p className="font-semibold text-slate-800 text-sm">{feature.title}</p>
-                                    <p className="text-slate-500 text-xs">{feature.description}</p>
+                                <div className="flex items-center gap-2">
+                                    <CheckCircle2 className="w-5 h-5 text-emerald-500" />
+                                    <span>No Registration Required to Track</span>
                                 </div>
                             </div>
-                        );
-                    })}
-                </div>
-            </div>
+                        </div>
 
-            {/* Footer Bar */}
-            <div className="bg-slate-900 text-center py-4 px-4">
-                <p className="text-slate-400 text-sm">
-                    An initiative under Digital India Programme • Government of India
-                </p>
-            </div>
+                        {/* Right Visual - Stats Card */}
+                        <div className="hidden lg:block">
+                            <div className="relative">
+                                {/* Main Card */}
+                                <div className="bg-white rounded-2xl shadow-2xl shadow-slate-200/50 border border-slate-200 p-8">
+                                    <div className="flex items-center gap-3 mb-6">
+                                        <div className="bg-blue-600 p-3 rounded-xl">
+                                            <ShieldCheck className="w-8 h-8 text-white" />
+                                        </div>
+                                        <div>
+                                            <h3 className="font-bold text-slate-900 text-lg">LokShikayat</h3>
+                                            <p className="text-slate-500 text-sm">Citizen Command Center</p>
+                                        </div>
+                                    </div>
+
+                                    <div className="grid grid-cols-2 gap-4">
+                                        {stats.map((stat, index) => {
+                                            const Icon = stat.icon;
+                                            return (
+                                                <div key={index} className="bg-slate-50 rounded-xl p-4 border border-slate-100">
+                                                    <Icon className="w-5 h-5 text-blue-600 mb-2" />
+                                                    <p className="text-2xl font-bold text-slate-900">{stat.value}</p>
+                                                    <p className="text-sm text-slate-500">{stat.label}</p>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+
+                                {/* Floating Elements */}
+                                <div className="absolute -top-4 -right-4 bg-emerald-500 text-white px-4 py-2 rounded-lg text-sm font-semibold shadow-lg">
+                                    Live Tracking
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            {/* Features Section */}
+            <section className="py-20 bg-slate-50 border-y border-slate-200">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="text-center mb-16">
+                        <h2 className="text-3xl sm:text-4xl font-bold text-slate-900 mb-4">
+                            Why Choose LokShikayat?
+                        </h2>
+                        <p className="text-lg text-slate-600 max-w-2xl mx-auto">
+                            A modern approach to civic grievance redressal with transparency at its core
+                        </p>
+                    </div>
+
+                    <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                        {features.map((feature, index) => {
+                            const Icon = feature.icon;
+                            const colors = {
+                                blue: 'bg-blue-50 text-blue-600 border-blue-100',
+                                amber: 'bg-amber-50 text-amber-600 border-amber-100',
+                                emerald: 'bg-emerald-50 text-emerald-600 border-emerald-100',
+                                slate: 'bg-slate-100 text-slate-600 border-slate-200'
+                            };
+                            return (
+                                <div key={index} className="bg-white rounded-xl p-6 border border-slate-200 hover:shadow-lg hover:border-slate-300 transition-all group">
+                                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-4 border ${colors[feature.color]}`}>
+                                        <Icon className="w-6 h-6" />
+                                    </div>
+                                    <h3 className="font-bold text-slate-900 text-lg mb-2 group-hover:text-blue-600 transition-colors">
+                                        {feature.title}
+                                    </h3>
+                                    <p className="text-slate-600 text-sm leading-relaxed">
+                                        {feature.description}
+                                    </p>
+                                </div>
+                            );
+                        })}
+                    </div>
+                </div>
+            </section>
+
+            {/* Departments Section */}
+            <section className="py-20">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="grid lg:grid-cols-2 gap-12 items-center">
+                        <div>
+                            <h2 className="text-3xl sm:text-4xl font-bold text-slate-900 mb-4">
+                                Connected to All Major Departments
+                            </h2>
+                            <p className="text-lg text-slate-600 mb-8">
+                                File grievances directly to the concerned department. Our AI-powered routing 
+                                ensures your complaint reaches the right authority instantly.
+                            </p>
+                            
+                            <div className="grid grid-cols-2 gap-3">
+                                {departments.map((dept, index) => (
+                                    <div key={index} className="flex items-center gap-2 text-slate-700">
+                                        <ChevronRight className="w-4 h-4 text-blue-600" />
+                                        <span className="text-sm font-medium">{dept}</span>
+                                    </div>
+                                ))}
+                            </div>
+
+                            <button
+                                onClick={() => navigate('/citizen')}
+                                className="mt-8 inline-flex items-center gap-2 text-blue-600 font-semibold hover:text-blue-700 transition-colors"
+                            >
+                                View All Departments
+                                <ArrowRight className="w-4 h-4" />
+                            </button>
+                        </div>
+
+                        <div className="bg-slate-900 rounded-2xl p-8 text-white">
+                            <h3 className="text-xl font-bold mb-6">How It Works</h3>
+                            <div className="space-y-6">
+                                {[
+                                    { step: '01', title: 'Register', desc: 'Create your free citizen account' },
+                                    { step: '02', title: 'Submit', desc: 'Describe your issue with location & photos' },
+                                    { step: '03', title: 'Track', desc: 'Monitor real-time status updates' },
+                                    { step: '04', title: 'Resolve', desc: 'Get timely resolution with feedback' }
+                                ].map((item, index) => (
+                                    <div key={index} className="flex gap-4">
+                                        <div className="flex-shrink-0 w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center text-sm font-bold">
+                                            {item.step}
+                                        </div>
+                                        <div>
+                                            <h4 className="font-semibold text-white">{item.title}</h4>
+                                            <p className="text-slate-400 text-sm">{item.desc}</p>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            {/* CTA Section */}
+            <section className="py-16 bg-blue-600">
+                <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+                    <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
+                        Ready to Make a Difference?
+                    </h2>
+                    <p className="text-blue-100 text-lg mb-8 max-w-2xl mx-auto">
+                        Join thousands of citizens who have successfully resolved their civic issues through LokShikayat.
+                    </p>
+                    <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                        <button
+                            onClick={handleGetStarted}
+                            className="bg-white hover:bg-blue-50 text-blue-600 px-8 py-4 rounded-xl font-semibold text-lg transition-colors flex items-center justify-center gap-2"
+                        >
+                            {isAuthenticated ? 'Go to Dashboard' : 'Start Filing Now'}
+                            <ArrowRight className="w-5 h-5" />
+                        </button>
+                        <Link
+                            to="/login"
+                            className="border-2 border-white/30 hover:bg-white/10 text-white px-8 py-4 rounded-xl font-semibold text-lg transition-colors flex items-center justify-center"
+                        >
+                            Already Registered? Sign In
+                        </Link>
+                    </div>
+                </div>
+            </section>
+
+            {/* Footer */}
+            <footer className="bg-slate-900 text-slate-400 py-12">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="grid md:grid-cols-4 gap-8">
+                        {/* Brand */}
+                        <div className="md:col-span-2">
+                            <div className="flex items-center gap-3 mb-4">
+                                <div className="bg-blue-600 p-2 rounded-lg">
+                                    <ShieldCheck className="w-6 h-6 text-white" />
+                                </div>
+                                <span className="text-xl font-bold text-white">LokShikayat</span>
+                            </div>
+                            <p className="text-sm leading-relaxed mb-4 max-w-md">
+                                An initiative under Digital India Programme to provide transparent, 
+                                efficient and accountable grievance redressal to citizens.
+                            </p>
+                            <div className="flex items-center gap-4 text-sm">
+                                <a href="#" className="hover:text-white transition-colors">Privacy Policy</a>
+                                <span>•</span>
+                                <a href="#" className="hover:text-white transition-colors">Terms of Service</a>
+                            </div>
+                        </div>
+
+                        {/* Quick Links */}
+                        <div>
+                            <h4 className="text-white font-semibold mb-4">Quick Links</h4>
+                            <ul className="space-y-2 text-sm">
+                                <li><Link to="/citizen" className="hover:text-white transition-colors">Citizen Portal</Link></li>
+                                <li><Link to="/login" className="hover:text-white transition-colors">Sign In</Link></li>
+                                <li><Link to="/register" className="hover:text-white transition-colors">Register</Link></li>
+                                <li><a href="#" className="hover:text-white transition-colors">Help & Support</a></li>
+                            </ul>
+                        </div>
+
+                        {/* Contact */}
+                        <div>
+                            <h4 className="text-white font-semibold mb-4">Contact</h4>
+                            <ul className="space-y-3 text-sm">
+                                <li className="flex items-center gap-2">
+                                    <Phone className="w-4 h-4" />
+                                    <span>1800-XXX-XXXX (Toll Free)</span>
+                                </li>
+                                <li className="flex items-center gap-2">
+                                    <Mail className="w-4 h-4" />
+                                    <span>support@lokshikayat.gov.in</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div className="border-t border-slate-800 mt-10 pt-8 text-center text-sm">
+                        <p>Government of India • Ministry of Electronics & Information Technology</p>
+                    </div>
+                </div>
+            </footer>
         </div>
     );
 };

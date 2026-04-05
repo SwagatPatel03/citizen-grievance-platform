@@ -1,8 +1,9 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { 
   MapPin, FileText, Send, AlertCircle, CheckCircle2, 
   Navigation, Upload, X, Clock, Shield, Info,
-  ChevronDown
+  ChevronDown, LogIn
 } from 'lucide-react';
 import { submitComplaint, getAllDepartments } from '../../../services/api.jsx';
 
@@ -35,11 +36,15 @@ const slaGuidelines = [
 ];
 
 const LodgeGrievanceTab = ({ onComplaintSubmitted }) => {
+  const navigate = useNavigate();
   const [departments, setDepartments] = useState([]);
   const [status, setStatus] = useState('idle');
   const [expandedAccordion, setExpandedAccordion] = useState(0);
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [isDragging, setIsDragging] = useState(false);
+
+  const currentUserId = localStorage.getItem('user_id');
+  const isAuthenticated = !!currentUserId;
 
   const [formData, setFormData] = useState({
     title: '',
@@ -113,9 +118,14 @@ const LodgeGrievanceTab = ({ onComplaintSubmitted }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    if (!isAuthenticated) {
+      navigate('/login');
+      return;
+    }
+
     setStatus('submitting');
 
-    const currentUserId = localStorage.getItem('user_id');
     const submissionData = {
       ...formData,
       citizenId: parseInt(currentUserId, 10),
@@ -160,6 +170,26 @@ const LodgeGrievanceTab = ({ onComplaintSubmitted }) => {
               </p>
             </div>
           </div>
+
+          {/* Login Notice for Unauthenticated Users */}
+          {!isAuthenticated && (
+            <div className="mb-6 p-4 bg-amber-50 border border-amber-200 rounded-xl flex items-start gap-3">
+              <AlertCircle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
+              <div>
+                <p className="font-semibold text-amber-800">Sign in to submit a grievance</p>
+                <p className="text-sm text-amber-700 mt-1">
+                  You need to be logged in to file a grievance. Your account helps us track and update you on your submission.
+                </p>
+                <button
+                  onClick={() => navigate('/login')}
+                  className="mt-3 inline-flex items-center gap-2 bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-colors"
+                >
+                  <LogIn className="w-4 h-4" />
+                  Sign In to Continue
+                </button>
+              </div>
+            </div>
+          )}
 
           <form onSubmit={handleSubmit} className="space-y-6">
             
@@ -305,11 +335,16 @@ const LodgeGrievanceTab = ({ onComplaintSubmitted }) => {
             <div className="pt-4">
               <button
                 type="submit"
-                disabled={status === 'submitting'}
+                disabled={status === 'submitting' || !isAuthenticated}
                 className="w-full flex justify-center items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-4 px-6 rounded-xl transition-colors shadow-lg shadow-emerald-600/20 disabled:opacity-70 disabled:cursor-not-allowed"
               >
                 {status === 'submitting' ? (
                   <>Submitting...</>
+                ) : !isAuthenticated ? (
+                  <>
+                    Sign In Required
+                    <LogIn className="w-4 h-4" />
+                  </>
                 ) : (
                   <>
                     Submit Grievance

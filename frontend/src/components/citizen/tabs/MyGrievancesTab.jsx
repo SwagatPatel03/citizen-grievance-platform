@@ -1,69 +1,27 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { 
   Clock, CheckCircle2, AlertCircle, Loader2, 
   FileText, Calendar, MapPin, Building2,
-  ChevronRight, Inbox
+  ChevronRight, Inbox, PlusCircle
 } from 'lucide-react';
-
-// ==================== MOCK DATA ====================
-const mockComplaints = [
-  {
-    id: 1001,
-    title: 'Broken Streetlight on Main Road',
-    description: 'The streetlight near Plot 42, Sector 5 has been non-functional for 2 weeks. It is causing safety concerns for pedestrians at night.',
-    departmentName: 'Electricity Board',
-    status: 'RESOLVED',
-    createdAt: '2024-03-15T10:30:00',
-    resolvedAt: '2024-03-20T14:00:00',
-    latitude: '20.2961',
-    longitude: '85.8245',
-    timeline: [
-      { step: 'Submitted', date: 'Mar 15, 2024', completed: true },
-      { step: 'Under Review', date: 'Mar 16, 2024', completed: true },
-      { step: 'Resolved', date: 'Mar 20, 2024', completed: true }
-    ]
-  },
-  {
-    id: 1002,
-    title: 'Pothole on Service Road',
-    description: 'Large pothole developed after recent rains near the KIIT Square junction. Multiple vehicles have been damaged.',
-    departmentName: 'Roads & Infrastructure',
-    status: 'IN_PROGRESS',
-    createdAt: '2024-03-28T09:00:00',
-    latitude: '20.3525',
-    longitude: '85.8143',
-    timeline: [
-      { step: 'Submitted', date: 'Mar 28, 2024', completed: true },
-      { step: 'Under Review', date: 'Mar 29, 2024', completed: true },
-      { step: 'Resolved', date: 'Pending', completed: false }
-    ]
-  },
-  {
-    id: 1003,
-    title: 'Water Supply Irregularity',
-    description: 'Water supply timing has been very irregular in Ward 15. We only receive water for 30 minutes instead of the scheduled 2 hours.',
-    departmentName: 'Water Works',
-    status: 'OPEN',
-    createdAt: '2024-04-02T11:15:00',
-    latitude: '20.2783',
-    longitude: '85.8188',
-    timeline: [
-      { step: 'Submitted', date: 'Apr 2, 2024', completed: true },
-      { step: 'Under Review', date: 'Pending', completed: false },
-      { step: 'Resolved', date: 'Pending', completed: false }
-    ]
-  }
-];
 
 const MyGrievancesTab = ({ 
   complaints = [], 
   loading = false, 
   selectedComplaint,
-  onSelectComplaint 
+  onSelectComplaint,
+  onNavigateToLodge
 }) => {
-  // Use mock data if no complaints provided
-  const displayComplaints = complaints.length > 0 ? complaints : mockComplaints;
-  const [selected, setSelected] = useState(selectedComplaint || displayComplaints[0] || null);
+  const [selected, setSelected] = useState(null);
+
+  // Update selected when complaints load or selectedComplaint changes
+  useEffect(() => {
+    if (selectedComplaint) {
+      setSelected(selectedComplaint);
+    } else if (complaints.length > 0 && !selected) {
+      setSelected(complaints[0]);
+    }
+  }, [complaints, selectedComplaint, selected]);
 
   const handleSelect = (complaint) => {
     setSelected(complaint);
@@ -139,22 +97,31 @@ const MyGrievancesTab = ({
             <FileText className="w-4 h-4" />
             Your Grievances
             <span className="ml-auto bg-slate-200 text-slate-600 text-xs font-bold px-2 py-0.5 rounded-full">
-              {displayComplaints.length}
+              {complaints.length}
             </span>
           </h2>
         </div>
 
-        {displayComplaints.length === 0 ? (
+        {complaints.length === 0 ? (
           <div className="p-8 text-center">
             <div className="bg-slate-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
               <Inbox className="w-8 h-8 text-slate-400" />
             </div>
-            <h3 className="font-semibold text-slate-700 mb-1">No grievances yet</h3>
-            <p className="text-sm text-slate-500">Your submitted grievances will appear here.</p>
+            <h3 className="font-semibold text-slate-700 mb-2">No grievances yet</h3>
+            <p className="text-sm text-slate-500 mb-4">Your submitted grievances will appear here.</p>
+            {onNavigateToLodge && (
+              <button
+                onClick={onNavigateToLodge}
+                className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-colors"
+              >
+                <PlusCircle className="w-4 h-4" />
+                Lodge Your First Grievance
+              </button>
+            )}
           </div>
         ) : (
           <div className="divide-y divide-slate-100">
-            {displayComplaints.map((complaint) => {
+            {complaints.map((complaint) => {
               const statusConfig = getStatusConfig(complaint.status);
               const StatusIcon = statusConfig.icon;
               const isSelected = selected?.id === complaint.id;
