@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
-import { MapPin, FileText, Send, AlertCircle, CheckCircle2, Navigation } from 'lucide-react';
+import { MapPin, FileText, Send, AlertCircle, CheckCircle2, Navigation, ChevronDown, ChevronUp } from 'lucide-react';
 import { submitComplaint, getAllDepartments } from '../../services/api.jsx';
 
 // 1. Accept the prop here
 const ComplaintForm = ({ onComplaintSubmitted, onSuccessSwitchTab }) => {
     const [departments, setDepartments] = useState([]);
     const [status, setStatus] = useState('idle'); // idle, submitting, success, error
+    const [showGuidelines, setShowGuidelines] = useState(false);
 
     // We hardcode citizenId to 1 for now until JWT Login is built
     const [formData, setFormData] = useState({
@@ -85,24 +86,30 @@ const ComplaintForm = ({ onComplaintSubmitted, onSuccessSwitchTab }) => {
     };
 
     return (
-        <div className="max-w-2xl mx-auto mt-2">
-            {/* The Form Card */}
-            <div className="bg-white rounded-xl shadow-lg border border-slate-200 overflow-hidden">
+        <div className="max-w-3xl mx-auto">
+            <div className="mb-8">
+                <h2 className="text-3xl font-bold text-slate-900 tracking-tight">Lodge a Grievance</h2>
+                <p className="text-slate-600 mt-2 text-lg">Report an issue to the concerned department.</p>
+            </div>
+            {/* PROGRESSIVE DISCLOSURE: Hidden Guidelines */}
+            <div className="mb-8 border-l-4 border-blue-600 bg-blue-50 p-4 rounded-r-lg">
+                <button
+                    type="button"
+                    onClick={() => setShowGuidelines(!showGuidelines)}
+                    className="flex items-center gap-2 text-blue-800 font-semibold hover:text-blue-900 outline-none"
+                >
+                    {showGuidelines ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                    Read filing guidelines before submitting
+                </button>
 
-                {/* Subtle Tiranga Gradient Accent Bar */}
-                <div className="h-2 w-full bg-gradient-to-r from-[#FF671F] via-[#FFFFFF] to-[#046A38] border-b border-slate-100"></div>
-
-                <div className="p-8">
-                    <div className="flex items-center gap-3 mb-8">
-                        <div className="bg-blue-50 p-3 rounded-full">
-                            {/* Using Navy Blue (#000080) for the Chakra thematic color */}
-                            <FileText className="w-6 h-6 text-[#000080]" />
-                        </div>
-                        <div>
-                            <h2 className="text-2xl font-bold text-slate-800">Lodge a Grievance</h2>
-                            <p className="text-slate-500 text-sm mt-1">Submit your issue directly to the concerned department.</p>
-                        </div>
+                {showGuidelines && (
+                    <div className="mt-3 text-sm text-blue-900 space-y-2 pl-6">
+                        <p>• <strong>Expected Timelines:</strong> Electricity (24h), Water (48h), Roads (7-14 days).</p>
+                        <p>• <strong>Locations:</strong> Always use the 'Detect Location' button for precise coordinates.</p>
+                        <p>• <strong>Duplicates:</strong> Please check the alert banner above to ensure your issue isn't already a known maintenance event.</p>
                     </div>
+                )}
+            </div>
 
                     <form onSubmit={handleSubmit} className="space-y-6">
 
@@ -200,8 +207,6 @@ const ComplaintForm = ({ onComplaintSubmitted, onSuccessSwitchTab }) => {
                         </div>
 
                     </form>
-                </div>
-            </div>
         </div>
     );
 };

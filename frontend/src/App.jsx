@@ -24,7 +24,7 @@ function AppLayout() {
                     {/* Public Routes */}
                     <Route path="/" element={<Home />} />
                     <Route path="/login" element={<Login />} />
-                    <Route path="/register" element={<Register />} />
+                    <Route path="/register" element={<Register ruster />} />
 
                     {/* Citizen Command Center - accessible for demo */}
                     <Route path="/citizen" element={<CitizenCommandCenter />} />
