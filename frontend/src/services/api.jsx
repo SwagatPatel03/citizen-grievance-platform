@@ -46,4 +46,10 @@ export const updateComplaintStatus = (id, status) => apiClient.patch(`/complaint
 // ---- AI CHAT ENDPOINTS ----
 export const askLokMitra = (message) => apiClient.post('/chat', { message });
 
+// ---- COMMUNITY POST ENDPOINTS ----
+// Fetch the live community feed
+export const getCommunityFeed = (ward) => apiClient.get(`/community/feed?ward=${ward}`);
+// Submit a poll vote
+export const submitPollVote = (optionId) => apiClient.post(`/community/poll/vote/${optionId}`);
+
 export default apiClient;
