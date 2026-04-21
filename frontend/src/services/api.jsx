@@ -51,5 +51,7 @@ export const askLokMitra = (message) => apiClient.post('/chat', { message });
 export const getCommunityFeed = (ward) => apiClient.get(`/community/feed?ward=${ward}`);
 // Submit a poll vote
 export const submitPollVote = (optionId) => apiClient.post(`/community/poll/vote/${optionId}`);
+// Publish a new post to the community feed
+export const createCommunityPost = (postData) => apiClient.post('/community/create', postData);
 
 export default apiClient;
