@@ -2,12 +2,14 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Lock, Mail, ShieldCheck, AlertCircle, ArrowRight } from 'lucide-react';
 import { loginUser } from '../services/api';
+import { useAuth } from '../context/AuthContext';
 
 const Login = () => {
     const [credentials, setCredentials] = useState({email: '', password: ''});
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
+    const auth = useAuth();
 
     const handleChange = (e) => {
         setCredentials({...credentials, [e.target.name]: e.target.value});
@@ -22,21 +24,18 @@ const Login = () => {
             const response = await loginUser(credentials);
             const {token, id, name, role} = response.data;
 
-            // 1. Save the security token and user details to local storage
-            localStorage.setItem('jwt_token', token);
-            localStorage.setItem('user_id', id);
-            localStorage.setItem('user_name', name);
-            localStorage.setItem('user_role', role);
+            // 1. Update auth context (also persists to localStorage)
+            auth.login({ token, id, name, role });
 
-            // 2. Redirect and force a hard reload simultaneously using window.location.href
+            // 2. Navigate to the appropriate dashboard
             if (role === 'CITIZEN') {
-                window.location.href = '/citizen';
+                navigate('/citizen');
             } else if (role === 'OFFICER') {
-                window.location.href = '/officer';
+                navigate('/officer');
             } else if (role === 'ADMIN') {
-                window.location.href = '/admin';
+                navigate('/admin');
             } else {
-                window.location.href = '/';
+                navigate('/');
             }
 
         } catch (err) {

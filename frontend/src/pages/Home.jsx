@@ -4,11 +4,11 @@ import {
   Users, FileText, Zap, Globe, Phone, Mail, MapPin,
   ChevronRight, Shield, Bell, Award
 } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 
 const Home = () => {
     const navigate = useNavigate();
-    const isAuthenticated = !!localStorage.getItem('jwt_token');
-    const userRole = localStorage.getItem('user_role');
+    const { isAuthenticated, userRole } = useAuth();
 
     const handleGetStarted = () => {
         if (isAuthenticated && userRole === 'CITIZEN') {

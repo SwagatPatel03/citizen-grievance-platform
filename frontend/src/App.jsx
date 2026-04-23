@@ -1,4 +1,5 @@
 import {BrowserRouter as Router, Routes, Route, useLocation} from "react-router-dom";
+import { AuthProvider } from "./context/AuthContext";
 import Navbar from "./components/Navbar.jsx";
 import CitizenCommandCenter from "./pages/CitizenCommandCenter.jsx";
 import AdminDashboard from "./pages/AdminDashboard.jsx";
@@ -24,7 +25,7 @@ function AppLayout() {
                     {/* Public Routes */}
                     <Route path="/" element={<Home />} />
                     <Route path="/login" element={<Login />} />
-                    <Route path="/register" element={<Register ruster />} />
+                    <Route path="/register" element={<Register />} />
 
                     {/* Citizen Command Center - accessible for demo */}
                     <Route path="/citizen" element={<CitizenCommandCenter />} />
@@ -47,7 +48,9 @@ function AppLayout() {
 function App() {
     return (
         <Router>
-            <AppLayout />
+            <AuthProvider>
+                <AppLayout />
+            </AuthProvider>
         </Router>
     );
 }

@@ -1,12 +1,12 @@
-import {Navigate} from "react-router-dom";
+import { Navigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 const ProtectedRoute = ({children, allowedRoles}) => {
-    const token = localStorage.getItem('jwt_token');
-    const userRole = localStorage.getItem('user_role');
+    const { isAuthenticated, userRole } = useAuth();
 
     // 1. If they aren't logged in at all, kick them to the login screen
-    if(!token) {
-        return <Navigate to="/login" replace />
+    if(!isAuthenticated) {
+        return <Navigate to="/login" replace />;
     }
 
     // 2. If this route requires specific roles, and the user doesn't have one of the them

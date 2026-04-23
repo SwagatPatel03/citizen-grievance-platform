@@ -5,6 +5,7 @@ import {
   FileText, ClipboardList, Building2, MapPin, Home, LogOut
 } from 'lucide-react';
 import { getCitizenComplaints } from '../services/api';
+import { useAuth } from '../context/AuthContext';
 
 // Tab Content Components
 import MyGrievancesTab from '../components/citizen/tabs/MyGrievancesTab';
@@ -35,16 +36,16 @@ const mockCommunityAlerts = [
 // ==================== MAIN COMPONENT ====================
 const CitizenCommandCenter = () => {
   const navigate = useNavigate();
+  const { userId: citizenId, userName, logout } = useAuth();
   const [activeTab, setActiveTab] = useState('my-grievances');
   const [complaints, setComplaints] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedComplaint, setSelectedComplaint] = useState(null);
 
-  const citizenId = localStorage.getItem('user_id');
-  const citizenName = localStorage.getItem('user_name') || mockUserData.name;
+  const citizenName = userName || mockUserData.name;
 
   const handleLogout = () => {
-    localStorage.clear();
+    logout();
     navigate('/login');
   };
 
