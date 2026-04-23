@@ -1,41 +1,84 @@
 import { useState, useEffect } from 'react';
-import { ShieldCheck, ListTodo, Megaphone, Activity, CheckCircle } from 'lucide-react';
+import {ShieldCheck, ListTodo, Megaphone, Activity, CheckCircle, ChevronDown} from 'lucide-react';
 import QueueManagementTab from '../components/officer/QueueManagementTab';
 import CommunityBroadcastTab from '../components/officer/QueueManagementTab'; // Ensure you have this from earlier!
-import { getDepartmentComplaints } from '../services/api.jsx';
+import {getDepartmentComplaints, getMyDepartments} from '../services/api.jsx';
 
 const OfficerPortal = () => {
     const [activeTab, setActiveTab] = useState('queue');
     const [stats, setStats] = useState({ total: 0, resolved: 0, pending: 0 });
 
+    // Dynamic Department States
+    const [myDepartments, setMyDepartment] = useState([]);
+    const [selectedDeptId, setSelectedDeptId] = useState(null);
+    const [loadingAuth, setLoadingAuth] = useState(true);
+
     const officerName = localStorage.getItem('user_name') || "Officer";
     const departmentId = 1; // You will dynamically set this from the JWT later
 
-    // Fetch stats for the header
+    // 1. Fetch the departments this specific officer is assigned to
     useEffect(() => {
+        const fetchInitialData = async () => {
+            try {
+                const response = await getMyDepartments();
+                const depts = response.data;
+                setMyDepartment(depts);
+
+                // If they have departments, select the first one by default
+                if (depts.length > 0) {
+                    setSelectedDeptId(depts[0].id);
+                }
+            } catch (error) {
+                console.error("Failed to fetch officer depts", error);
+            } finally {
+                setLoadingAuth(false);
+            }
+        };
+        fetchInitialData();
+    }, []);
+
+    // 2. Fetch stats whenever the selected department changes
+    useEffect(() => {
+        if(!selectedDeptId) return;
+
         const fetchStats = async () => {
             try {
-                const response = await getDepartmentComplaints(departmentId);
+                const response = await getDepartmentComplaints(selectedDeptId);
                 const complaints = response.data;
                 setStats({
                     total: complaints.length,
                     resolved: complaints.filter(c => c.status === 'RESOLVED').length,
-                    pending: complaints.filter(c => c.status !== 'RESOLVED').length
+                    pending: complaints.filter(c => c.status === 'OPEN' || c.status === 'IN_PROGRESS').length
                 });
             } catch (error) {
                 console.error("Failed to fetch stats", error);
             }
         };
         fetchStats();
-    }, [departmentId]);
+    }, [selectedDeptId]);
+
+    if (loadingAuth) {
+        return <div className="text-center py-20 text-slate-500">Authenticating Officer Credentials...</div>;
+    }
+
+    // Security Block: If they were created but not assigned to any department
+    if (myDepartments.length === 0) {
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-slate-50">
+                <div className="bg-white p-8 rounded-xl shadow-sm border border-red-200 text-center max-w-md">
+                    <ShieldCheck className="w-12 h-12 text-red-500 mx-auto mb-4" />
+                    <h2 className="text-xl font-bold text-slate-900 mb-2">Unassigned Account</h2>
+                    <p className="text-slate-600">Your officer account has been created, but you have not been assigned to a department yet. Please contact the System Administrator.</p>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="w-full flex flex-col min-h-screen bg-slate-50">
-
             {/* ENTERPRISE HEADER */}
             <div className="w-full relative overflow-hidden bg-[#0B1120] border-b border-slate-800 pt-10 pb-10">
                 <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-blue-500/40 to-transparent"></div>
-                <div className="absolute top-0 right-0 w-[800px] h-[400px] bg-blue-500/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3 pointer-events-none"></div>
 
                 <div className="max-w-[100rem] mx-auto px-4 sm:px-8 lg:px-12 flex flex-col md:flex-row justify-between items-start md:items-center gap-6 relative z-10">
                     <div>
@@ -46,13 +89,30 @@ const OfficerPortal = () => {
                         <p className="text-slate-400 mt-2 font-medium">Welcome, {officerName}. Manage operations and community outreach.</p>
                     </div>
 
-                    {/* Live Stats */}
-                    <div className="flex gap-4 w-full md:w-auto">
+                    <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto">
+
+                        {/* Dynamic Department Switcher (Only visible if assigned to >1 dept) */}
+                        {myDepartments.length > 1 && (
+                            <div className="relative inline-flex items-center">
+                                <select
+                                    value={selectedDeptId}
+                                    onChange={(e) => setSelectedDeptId(Number(e.target.value))}
+                                    className="appearance-none w-full sm:w-auto bg-slate-800/80 backdrop-blur border border-slate-700 text-white font-medium px-4 py-3 pr-10 rounded-xl focus:ring-2 focus:ring-[#000080] outline-none cursor-pointer"
+                                >
+                                    {myDepartments.map(dept => (
+                                        <option key={dept.id} value={dept.id}>{dept.name}</option>
+                                    ))}
+                                </select>
+                                <ChevronDown className="absolute right-3 w-4 h-4 text-slate-400 pointer-events-none" />
+                            </div>
+                        )}
+
+                        {/* Live Stats */}
                         <div className="bg-slate-800/60 backdrop-blur shadow-sm border border-slate-700/50 px-5 py-3 rounded-xl flex items-center gap-4">
                             <div className="p-2 bg-amber-500/10 rounded-lg"><Activity className="w-5 h-5 text-amber-400" /></div>
                             <div>
                                 <div className="text-2xl font-bold text-white leading-none">{stats.pending}</div>
-                                <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mt-1">Pending Action</div>
+                                <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mt-1">Pending</div>
                             </div>
                         </div>
                         <div className="bg-slate-800/60 backdrop-blur shadow-sm border border-slate-700/50 px-5 py-3 rounded-xl flex items-center gap-4">
@@ -68,8 +128,6 @@ const OfficerPortal = () => {
 
             {/* MAIN WORKSPACE */}
             <div className="w-full flex-grow flex flex-col">
-
-                {/* TOP NAV TABS */}
                 <div className="bg-white border-b border-slate-200 shadow-sm sticky top-0 z-10">
                     <div className="max-w-[100rem] mx-auto px-4 sm:px-8 lg:px-12 flex">
                         <button onClick={() => setActiveTab('queue')} className={`flex items-center gap-2 px-6 py-4 font-bold text-sm transition-all border-b-4 ${activeTab === 'queue' ? 'border-[#000080] text-[#000080]' : 'border-transparent text-slate-500 hover:text-slate-800 hover:bg-slate-50'}`}>
@@ -81,9 +139,8 @@ const OfficerPortal = () => {
                     </div>
                 </div>
 
-                {/* DYNAMIC CONTENT AREA */}
                 <div className="flex-grow max-w-[100rem] mx-auto w-full px-4 sm:px-8 lg:px-12 py-8">
-                    {activeTab === 'queue' && <QueueManagementTab departmentId={departmentId} />}
+                    {activeTab === 'queue' && <QueueManagementTab departmentId={selectedDeptId} />}
                     {activeTab === 'broadcast' && <CommunityBroadcastTab />}
                 </div>
             </div>

@@ -34,11 +34,6 @@ public class AdminController {
         return ResponseEntity.ok(savedDept);
     }
 
-    @GetMapping("/departments")
-    public ResponseEntity<List<Department>> getAllDepartments() {
-        return ResponseEntity.ok(departmentRepository.findAll());
-    }
-
     // Officer Management
     @PostMapping("/officers")
     public ResponseEntity<?> registerOfficer(@RequestBody OfficerRegistrationDto request) {
