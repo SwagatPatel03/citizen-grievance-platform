@@ -1,5 +1,6 @@
-import {BrowserRouter as Router, Routes, Route, useLocation} from "react-router-dom";
+import {BrowserRouter as Router, Routes, Route} from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
+import { PortalProvider } from "./context/PortalContext";
 import Navbar from "./components/Navbar.jsx";
 import CitizenCommandCenter from "./pages/CitizenCommandCenter.jsx";
 import AdminDashboard from "./pages/AdminDashboard.jsx";
@@ -11,13 +12,10 @@ import OfficerPortal from "./pages/OfficerPortal.jsx";
 
 // Layout component to conditionally render Navbar
 function AppLayout() {
-    const location = useLocation();
-    const hideNavbar = location.pathname === '/citizen';
 
     return (
         <div className="min-h-screen bg-slate-50 font-sans antialiased">
-            {/* Navbar hidden on Citizen Command Center which has its own header */}
-            {!hideNavbar && <Navbar />}
+            <Navbar />
 
             {/* Main content area */}
             <main className="w-full flex-grow">
@@ -49,7 +47,9 @@ function App() {
     return (
         <Router>
             <AuthProvider>
-                <AppLayout />
+                <PortalProvider>
+                    <AppLayout />
+                </PortalProvider>
             </AuthProvider>
         </Router>
     );

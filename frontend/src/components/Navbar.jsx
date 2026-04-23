@@ -3,19 +3,21 @@ import { Link, useLocation } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 import {
     ShieldCheck, Home, User, LayoutDashboard,
-    LogIn, LogOut, UserPlus, Menu, X
+    LogIn, LogOut, UserPlus, Menu, X, ChevronRight
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { usePortal } from '../context/PortalContext';
 
 const Navbar = () => {
     const location = useLocation();
     const navigate = useNavigate();
     const { isAuthenticated, userRole, logout } = useAuth();
+    const { portal } = usePortal();
 
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [scrolled, setScrolled] = useState(false);
 
-    // ─── Scroll-aware styling (#8) ───────────────────────────
+    // ─── Scroll-aware styling ──────────────────────────────
     useEffect(() => {
         const onScroll = () => setScrolled(window.scrollY > 10);
         window.addEventListener('scroll', onScroll, { passive: true });
@@ -27,13 +29,11 @@ const Navbar = () => {
         setMobileMenuOpen(false);
     }, [location.pathname]);
 
-    // ─── Logout without hard reload (#2, #13) ───────────────
     const handleLogout = () => {
         logout();
         navigate('/login');
     };
 
-    // ─── Active link helper with transition (#11) ───────────
     const linkClasses = (path) => {
         const base =
             'px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900';
@@ -42,7 +42,6 @@ const Navbar = () => {
             : `${base} text-slate-300 hover:bg-slate-800 hover:text-white`;
     };
 
-    // ─── Build nav links based on role (#3) ─────────────────
     const navLinks = [
         { to: '/', label: 'Home', icon: Home, show: true },
         {
@@ -63,54 +62,75 @@ const Navbar = () => {
             icon: LayoutDashboard,
             show: isAuthenticated && userRole === 'ADMIN',
         },
-    ].filter((l) => l.show);
+    ].filter((l) => l.show && l.to !== location.pathname);
+
+    // ─── Portal mode: merged single bar ────────────────────
+    const isPortalMode = !!portal;
 
     return (
         <nav
-            aria-label="Main navigation" /* #4 */
+            aria-label="Main navigation"
             className={`sticky top-0 z-50 border-b border-slate-800 transition-all duration-300 ${
                 scrolled
                     ? 'bg-slate-900/85 backdrop-blur-md shadow-xl'
                     : 'bg-slate-900 shadow-lg'
             }`}
         >
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"> {/* #10 — matches page content */}
-                <div className="flex justify-between h-16">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
-                    {/* ── Logo (#9 — hover animation) ────────── */}
-                    <div className="flex items-center">
+                {/* ── Main Row ───────────────────────────── */}
+                <div className="flex items-center justify-between h-16">
+
+                    {/* Left: Logo + Portal breadcrumb */}
+                    <div className="flex items-center gap-2 min-w-0">
                         <Link
                             to="/"
-                            className="flex items-center gap-2.5 group focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900 rounded-lg"
+                            className="flex items-center gap-2.5 group shrink-0 focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900 rounded-lg"
                         >
                             <div className="bg-blue-600/20 p-1.5 rounded-lg border border-blue-500/30 group-hover:bg-blue-600/30 group-hover:scale-110 transition-all duration-200">
-                                <ShieldCheck className="h-6 w-6 text-blue-400" />
+                                <ShieldCheck className="h-5 w-5 text-blue-400" />
                             </div>
-                            <span className="font-bold text-xl text-white tracking-tight group-hover:text-blue-300 transition-colors duration-200">
+                            <span className="font-bold text-lg text-white tracking-tight group-hover:text-blue-300 transition-colors duration-200">
                                 LokShikayat
                             </span>
                         </Link>
+
+                        {/* Portal breadcrumb — shown when on a portal page */}
+                        {isPortalMode && (
+                            <div className="hidden md:flex items-center gap-2 text-slate-500 min-w-0">
+                                <ChevronRight className="w-4 h-4 shrink-0" />
+                                <span className="text-sm font-semibold text-slate-300 truncate">
+                                    {portal.title}
+                                </span>
+                            </div>
+                        )}
                     </div>
 
-                    {/* ── Desktop Nav Links ────────────────── */}
-                    <div className="hidden md:flex items-center space-x-1">
-                        {navLinks.map((link) => {
-                            const Icon = link.icon;
-                            return (
-                                <Link
-                                    key={link.to}
-                                    to={link.to}
-                                    className={linkClasses(link.to)}
-                                    aria-current={location.pathname === link.to ? 'page' : undefined} /* #7 */
-                                >
-                                    <Icon className="h-4 w-4" /> {link.label}
-                                </Link>
-                            );
-                        })}
-                    </div>
+                    {/* Center: Portal-injected content OR regular nav links */}
+                    {isPortalMode ? (
+                        <div className="hidden md:flex items-center gap-3">
+                            {portal.content}
+                        </div>
+                    ) : (
+                        <div className="hidden md:flex items-center space-x-1">
+                            {navLinks.map((link) => {
+                                const Icon = link.icon;
+                                return (
+                                    <Link
+                                        key={link.to}
+                                        to={link.to}
+                                        className={linkClasses(link.to)}
+                                        aria-current={location.pathname === link.to ? 'page' : undefined}
+                                    >
+                                        <Icon className="h-4 w-4" /> {link.label}
+                                    </Link>
+                                );
+                            })}
+                        </div>
+                    )}
 
-                    {/* ── Desktop Auth Buttons (#5, #6) ───── */}
-                    <div className="hidden md:flex items-center gap-3">
+                    {/* Right: Auth buttons */}
+                    <div className="hidden md:flex items-center gap-3 shrink-0">
                         {isAuthenticated ? (
                             <button
                                 onClick={handleLogout}
@@ -146,7 +166,7 @@ const Navbar = () => {
                         )}
                     </div>
 
-                    {/* ── Mobile Hamburger Button (#1) ─────── */}
+                    {/* Mobile hamburger */}
                     <div className="flex md:hidden items-center">
                         <button
                             onClick={() => setMobileMenuOpen((v) => !v)}
@@ -161,14 +181,25 @@ const Navbar = () => {
                 </div>
             </div>
 
-            {/* ── Mobile Slide-down Menu (#1) ─────────────── */}
+            {/* ── Mobile slide-down ─────────────────────────── */}
             <div
                 id="mobile-nav-menu"
                 className={`md:hidden overflow-hidden transition-all duration-300 ease-in-out ${
-                    mobileMenuOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
+                    mobileMenuOpen ? 'max-h-[32rem] opacity-100' : 'max-h-0 opacity-0'
                 }`}
             >
-                <div className="px-4 pb-4 pt-2 space-y-1 border-t border-slate-800">
+                <div className="px-4 pb-4 pt-2 space-y-2 border-t border-slate-800">
+
+                    {/* Portal info on mobile */}
+                    {isPortalMode && (
+                        <div className="pb-3 mb-2 border-b border-slate-800">
+                            <p className="text-sm font-semibold text-slate-300">{portal.title}</p>
+                            <div className="mt-2 flex flex-wrap gap-2">
+                                {portal.mobileContent || portal.content}
+                            </div>
+                        </div>
+                    )}
+
                     {navLinks.map((link) => {
                         const Icon = link.icon;
                         return (

@@ -1,10 +1,15 @@
-import { useState, useEffect } from 'react';
-import {ShieldCheck, ListTodo, Megaphone, Activity, CheckCircle, ChevronDown} from 'lucide-react';
+import { useState, useEffect, useMemo } from 'react';
+import { ShieldCheck, ListTodo, Megaphone, Activity, CheckCircle, ChevronDown } from 'lucide-react';
 import QueueManagementTab from '../components/officer/QueueManagementTab';
 import CommunityBroadcastTab from '../components/officer/QueueManagementTab'; // Ensure you have this from earlier!
-import {getDepartmentComplaints, getMyDepartments} from '../services/api.jsx';
+import { getDepartmentComplaints, getMyDepartments } from '../services/api.jsx';
+import { useAuth } from '../context/AuthContext';
+import { usePortal } from '../context/PortalContext';
+import TabBar from '../components/shared/TabBar';
 
 const OfficerPortal = () => {
+    const { userName } = useAuth();
+    const { setPortal } = usePortal();
     const [activeTab, setActiveTab] = useState('queue');
     const [stats, setStats] = useState({ total: 0, resolved: 0, pending: 0 });
 
@@ -13,8 +18,7 @@ const OfficerPortal = () => {
     const [selectedDeptId, setSelectedDeptId] = useState(null);
     const [loadingAuth, setLoadingAuth] = useState(true);
 
-    const officerName = localStorage.getItem('user_name') || "Officer";
-    const departmentId = 1; // You will dynamically set this from the JWT later
+    const officerName = userName || "Officer";
 
     // 1. Fetch the departments this specific officer is assigned to
     useEffect(() => {
@@ -57,6 +61,63 @@ const OfficerPortal = () => {
         fetchStats();
     }, [selectedDeptId]);
 
+    // 3. Inject portal content into the Navbar
+    const portalContent = useMemo(() => (
+        <>
+            {/* Department Switcher */}
+            {myDepartments.length > 1 && (
+                <div className="relative inline-flex items-center">
+                    <select
+                        value={selectedDeptId}
+                        onChange={(e) => setSelectedDeptId(Number(e.target.value))}
+                        className="appearance-none bg-slate-800 border border-slate-700 text-white text-sm font-medium px-3 py-1.5 pr-8 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none cursor-pointer"
+                    >
+                        {myDepartments.map(dept => (
+                            <option key={dept.id} value={dept.id}>{dept.name}</option>
+                        ))}
+                    </select>
+                    <ChevronDown className="absolute right-2.5 w-3.5 h-3.5 text-slate-400 pointer-events-none" />
+                </div>
+            )}
+
+            {/* Department badge (single dept) */}
+            {myDepartments.length === 1 && (
+                <span className="bg-slate-800 border border-slate-700 text-slate-300 text-xs font-medium px-2.5 py-1.5 rounded-lg">
+                    {myDepartments[0].name}
+                </span>
+            )}
+
+            {/* Compact stat badges */}
+            <div className="flex items-center gap-1.5">
+                <div className="bg-slate-800/80 border border-slate-700 rounded-lg px-2.5 py-1.5 flex items-center gap-1.5">
+                    <Activity className="w-3.5 h-3.5 text-amber-400" />
+                    <span className="text-white font-bold text-xs">{stats.pending}</span>
+                    <span className="text-slate-400 text-[10px]">pending</span>
+                </div>
+                <div className="bg-slate-800/80 border border-slate-700 rounded-lg px-2.5 py-1.5 flex items-center gap-1.5">
+                    <CheckCircle className="w-3.5 h-3.5 text-emerald-400" />
+                    <span className="text-white font-bold text-xs">{stats.resolved}</span>
+                    <span className="text-slate-400 text-[10px]">resolved</span>
+                </div>
+            </div>
+        </>
+    ), [myDepartments, selectedDeptId, stats]);
+
+    useEffect(() => {
+        if (!loadingAuth && myDepartments.length > 0) {
+            setPortal({
+                title: 'Department Command',
+                content: portalContent,
+            });
+        }
+        return () => setPortal(null);
+    }, [portalContent, loadingAuth, myDepartments.length]);
+
+    const tabs = [
+        { id: 'queue', label: 'Queue Management', icon: ListTodo },
+        { id: 'broadcast', label: 'Community Broadcast', icon: Megaphone },
+    ];
+
     if (loadingAuth) {
         return <div className="text-center py-20 text-slate-500">Authenticating Officer Credentials...</div>;
     }
@@ -76,70 +137,24 @@ const OfficerPortal = () => {
 
     return (
         <div className="w-full flex flex-col min-h-screen bg-slate-50">
-            {/* ENTERPRISE HEADER */}
-            <div className="w-full relative overflow-hidden bg-[#0B1120] border-b border-slate-800 pt-10 pb-10">
-                <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-blue-500/40 to-transparent"></div>
 
-                <div className="max-w-[100rem] mx-auto px-4 sm:px-8 lg:px-12 flex flex-col md:flex-row justify-between items-start md:items-center gap-6 relative z-10">
-                    <div>
-                        <h1 className="text-3xl font-bold text-white tracking-tight flex items-center gap-3">
-                            <ShieldCheck className="w-8 h-8 text-[#000080]" />
-                            Department Command
-                        </h1>
-                        <p className="text-slate-400 mt-2 font-medium">Welcome, {officerName}. Manage operations and community outreach.</p>
+            {/* ── TAB BAR (sticks below navbar) ───────────────── */}
+            <TabBar tabs={tabs} activeTab={activeTab} onTabChange={setActiveTab} />
+
+            {/* ── MAIN CONTENT ───────────────────────────────── */}
+            <div className="flex-grow">
+                <div className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8">
+
+                    {/* ── Page Context ─────────────────────── */}
+                    <div className="mb-6">
+                        <h2 className="text-xl font-bold text-slate-900">
+                            Welcome back, {officerName}
+                        </h2>
+                        <p className="text-sm text-slate-500 mt-1">
+                            Managing grievances for <span className="font-semibold text-slate-700">{myDepartments.find(d => d.id === selectedDeptId)?.name || 'your department'}</span>
+                        </p>
                     </div>
 
-                    <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto">
-
-                        {/* Dynamic Department Switcher (Only visible if assigned to >1 dept) */}
-                        {myDepartments.length > 1 && (
-                            <div className="relative inline-flex items-center">
-                                <select
-                                    value={selectedDeptId}
-                                    onChange={(e) => setSelectedDeptId(Number(e.target.value))}
-                                    className="appearance-none w-full sm:w-auto bg-slate-800/80 backdrop-blur border border-slate-700 text-white font-medium px-4 py-3 pr-10 rounded-xl focus:ring-2 focus:ring-[#000080] outline-none cursor-pointer"
-                                >
-                                    {myDepartments.map(dept => (
-                                        <option key={dept.id} value={dept.id}>{dept.name}</option>
-                                    ))}
-                                </select>
-                                <ChevronDown className="absolute right-3 w-4 h-4 text-slate-400 pointer-events-none" />
-                            </div>
-                        )}
-
-                        {/* Live Stats */}
-                        <div className="bg-slate-800/60 backdrop-blur shadow-sm border border-slate-700/50 px-5 py-3 rounded-xl flex items-center gap-4">
-                            <div className="p-2 bg-amber-500/10 rounded-lg"><Activity className="w-5 h-5 text-amber-400" /></div>
-                            <div>
-                                <div className="text-2xl font-bold text-white leading-none">{stats.pending}</div>
-                                <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mt-1">Pending</div>
-                            </div>
-                        </div>
-                        <div className="bg-slate-800/60 backdrop-blur shadow-sm border border-slate-700/50 px-5 py-3 rounded-xl flex items-center gap-4">
-                            <div className="p-2 bg-emerald-500/10 rounded-lg"><CheckCircle className="w-5 h-5 text-emerald-400" /></div>
-                            <div>
-                                <div className="text-2xl font-bold text-white leading-none">{stats.resolved}</div>
-                                <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mt-1">Resolved</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            {/* MAIN WORKSPACE */}
-            <div className="w-full flex-grow flex flex-col">
-                <div className="bg-white border-b border-slate-200 shadow-sm sticky top-0 z-10">
-                    <div className="max-w-[100rem] mx-auto px-4 sm:px-8 lg:px-12 flex">
-                        <button onClick={() => setActiveTab('queue')} className={`flex items-center gap-2 px-6 py-4 font-bold text-sm transition-all border-b-4 ${activeTab === 'queue' ? 'border-[#000080] text-[#000080]' : 'border-transparent text-slate-500 hover:text-slate-800 hover:bg-slate-50'}`}>
-                            <ListTodo className="w-4 h-4" /> Queue Management
-                        </button>
-                        <button onClick={() => setActiveTab('broadcast')} className={`flex items-center gap-2 px-6 py-4 font-bold text-sm transition-all border-b-4 ${activeTab === 'broadcast' ? 'border-[#000080] text-[#000080]' : 'border-transparent text-slate-500 hover:text-slate-800 hover:bg-slate-50'}`}>
-                            <Megaphone className="w-4 h-4" /> Community Broadcast
-                        </button>
-                    </div>
-                </div>
-
-                <div className="flex-grow max-w-[100rem] mx-auto w-full px-4 sm:px-8 lg:px-12 py-8">
                     {activeTab === 'queue' && <QueueManagementTab departmentId={selectedDeptId} />}
                     {activeTab === 'broadcast' && <CommunityBroadcastTab />}
                 </div>

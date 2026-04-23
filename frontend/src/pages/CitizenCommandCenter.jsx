@@ -1,11 +1,13 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
-  AlertTriangle, ShieldCheck, TrendingUp, CheckCircle2, 
-  FileText, ClipboardList, Building2, MapPin, Home, LogOut
+  AlertTriangle, TrendingUp, CheckCircle2, 
+  FileText, ClipboardList, Building2, MapPin
 } from 'lucide-react';
 import { getCitizenComplaints } from '../services/api';
 import { useAuth } from '../context/AuthContext';
+import { usePortal } from '../context/PortalContext';
+import TabBar from '../components/shared/TabBar';
 
 // Tab Content Components
 import MyGrievancesTab from '../components/citizen/tabs/MyGrievancesTab';
@@ -16,7 +18,6 @@ import LokMitraChat from '../components/citizen/LokMitraChat';
 import GlobalFooter from '../components/citizen/GlobalFooter';
 
 // ==================== MOCK DATA ====================
-// Represents data that would be fetched from a Spring Boot API
 const mockUserData = {
   name: 'Rajesh Kumar',
   civicTrustScore: 87,
@@ -36,18 +37,14 @@ const mockCommunityAlerts = [
 // ==================== MAIN COMPONENT ====================
 const CitizenCommandCenter = () => {
   const navigate = useNavigate();
-  const { userId: citizenId, userName, logout } = useAuth();
+  const { userId: citizenId, userName } = useAuth();
+  const { setPortal } = usePortal();
   const [activeTab, setActiveTab] = useState('my-grievances');
   const [complaints, setComplaints] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedComplaint, setSelectedComplaint] = useState(null);
 
   const citizenName = userName || mockUserData.name;
-
-  const handleLogout = () => {
-    logout();
-    navigate('/login');
-  };
 
   const fetchComplaints = useCallback(async () => {
     if (!citizenId) {
@@ -76,10 +73,41 @@ const CitizenCommandCenter = () => {
   }, [fetchComplaints]);
 
   const stats = {
-    civicTrustScore: 87, // Will be fetched from user profile API
+    civicTrustScore: 87,
     totalFiled: complaints.length,
     resolved: complaints.filter(c => c.status === 'RESOLVED').length
   };
+
+  // ─── Inject portal content into Navbar ──────────────────
+  const portalContent = useMemo(() => (
+    <div className="flex items-center gap-1.5">
+      <div className="bg-slate-800/80 border border-slate-700 rounded-lg px-2.5 py-1.5 flex items-center gap-1.5">
+        <TrendingUp className="w-3.5 h-3.5 text-emerald-400" />
+        <span className="text-white font-bold text-xs">{stats.civicTrustScore}</span>
+        <span className="text-slate-400 text-[10px]">trust</span>
+      </div>
+      <div className="bg-slate-800/80 border border-slate-700 rounded-lg px-2.5 py-1.5 flex items-center gap-1.5">
+        <FileText className="w-3.5 h-3.5 text-blue-400" />
+        <span className="text-white font-bold text-xs">{stats.totalFiled}</span>
+        <span className="text-slate-400 text-[10px]">filed</span>
+      </div>
+      <div className="bg-slate-800/80 border border-slate-700 rounded-lg px-2.5 py-1.5 flex items-center gap-1.5">
+        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+        <span className="text-white font-bold text-xs">{stats.resolved}</span>
+        <span className="text-slate-400 text-[10px]">resolved</span>
+      </div>
+    </div>
+  ), [stats.civicTrustScore, stats.totalFiled, stats.resolved]);
+
+  useEffect(() => {
+    if (!loading) {
+      setPortal({
+        title: 'Command Center',
+        content: portalContent,
+      });
+    }
+    return () => setPortal(null);
+  }, [portalContent, loading]);
 
   const tabs = [
     { id: 'my-grievances', label: 'My Grievances', icon: ClipboardList },
@@ -99,7 +127,7 @@ const CitizenCommandCenter = () => {
       {/* ==================== GLOBAL ALERT TICKER ==================== */}
       {mockCommunityAlerts.length > 0 && (
         <div className="bg-amber-50 border-b border-amber-200">
-          <div className="max-w-[1920px] mx-auto px-4 sm:px-8 lg:px-12 2xl:px-16 py-2.5">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2.5">
             <div className="flex items-center gap-3">
               <div className="flex-shrink-0 bg-amber-100 p-1.5 rounded-full">
                 <AlertTriangle className="w-4 h-4 text-amber-600" />
@@ -115,119 +143,23 @@ const CitizenCommandCenter = () => {
         </div>
       )}
 
-      {/* ==================== ENTERPRISE HEADER ==================== */}
-      <header className="bg-slate-900 border-b border-slate-800">
-        <div className="max-w-[1920px] mx-auto px-4 sm:px-8 lg:px-12 2xl:px-16 py-5">
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-            
-            {/* Left: Logo & Welcome */}
-            <div className="flex items-center gap-4">
-              <button 
-                onClick={() => navigate('/')}
-                className="bg-blue-600/20 p-3 rounded-xl border border-blue-500/30 hover:bg-blue-600/30 transition-colors"
-                title="Go to Home"
-              >
-                <ShieldCheck className="w-8 h-8 text-blue-400" />
-              </button>
-              <div>
-                <h1 className="text-xl font-bold text-white tracking-tight">
-                  Welcome, {citizenName}
-                </h1>
-                <p className="text-slate-400 text-sm mt-0.5">
-                  Citizen Command Center • LokShikayat
-                </p>
-              </div>
-            </div>
-
-            {/* Center: Navigation */}
-            <div className="hidden md:flex items-center gap-2">
-              <button
-                onClick={() => navigate('/')}
-                className="flex items-center gap-2 px-4 py-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors text-sm font-medium"
-              >
-                <Home className="w-4 h-4" />
-                Home
-              </button>
-              <button
-                onClick={handleLogout}
-                className="flex items-center gap-2 px-4 py-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors text-sm font-medium"
-              >
-                <LogOut className="w-4 h-4" />
-                Sign Out
-              </button>
-            </div>
-
-            {/* Right: Glass-morphic Stats Row */}
-            <div className="flex items-center gap-3 sm:gap-4">
-              {/* Civic Trust Score */}
-              <div className="bg-slate-800/60 backdrop-blur-sm border border-slate-700 rounded-xl px-4 py-3 flex items-center gap-3">
-                <div className="bg-emerald-500/20 p-2 rounded-lg">
-                  <TrendingUp className="w-5 h-5 text-emerald-400" />
-                </div>
-                <div>
-                  <p className="text-xs text-slate-400 font-medium">Civic Trust Score</p>
-                  <p className="text-xl font-bold text-white">{stats.civicTrustScore}<span className="text-sm text-slate-400">/100</span></p>
-                </div>
-              </div>
-
-              {/* Total Filed */}
-              <div className="bg-slate-800/60 backdrop-blur-sm border border-slate-700 rounded-xl px-4 py-3 flex items-center gap-3">
-                <div className="bg-blue-500/20 p-2 rounded-lg">
-                  <FileText className="w-5 h-5 text-blue-400" />
-                </div>
-                <div>
-                  <p className="text-xs text-slate-400 font-medium">Total Filed</p>
-                  <p className="text-xl font-bold text-white">{stats.totalFiled}</p>
-                </div>
-              </div>
-
-              {/* Resolved */}
-              <div className="bg-slate-800/60 backdrop-blur-sm border border-slate-700 rounded-xl px-4 py-3 flex items-center gap-3">
-                <div className="bg-emerald-500/20 p-2 rounded-lg">
-                  <CheckCircle2 className="w-5 h-5 text-emerald-400" />
-                </div>
-                <div>
-                  <p className="text-xs text-slate-400 font-medium">Resolved</p>
-                  <p className="text-xl font-bold text-white">{stats.resolved}</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </header>
-
-      {/* ==================== MAIN WORKSPACE NAVIGATION (TABS) ==================== */}
-      <div className="border-b border-slate-200 bg-white sticky top-0 z-40">
-        <div className="max-w-[1920px] mx-auto px-4 sm:px-8 lg:px-12 2xl:px-16">
-          <nav className="flex gap-1 -mb-px overflow-x-auto" aria-label="Main navigation tabs">
-            {tabs.map((tab) => {
-              const Icon = tab.icon;
-              const isActive = activeTab === tab.id;
-              return (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`
-                    flex items-center gap-2 px-5 py-4 text-sm font-semibold border-b-2 transition-all whitespace-nowrap
-                    ${isActive 
-                      ? 'border-blue-600 text-blue-600 bg-blue-50/50' 
-                      : 'border-transparent text-slate-500 hover:text-slate-700 hover:bg-slate-50'
-                    }
-                  `}
-                  aria-current={isActive ? 'page' : undefined}
-                >
-                  <Icon className="w-4 h-4" />
-                  {tab.label}
-                </button>
-              );
-            })}
-          </nav>
-        </div>
-      </div>
+      {/* ==================== TAB BAR ==================== */}
+      <TabBar tabs={tabs} activeTab={activeTab} onTabChange={setActiveTab} />
 
       {/* ==================== MAIN CONTENT AREA ==================== */}
       <main className="flex-1 bg-slate-50">
-        <div className="max-w-[1920px] mx-auto">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+          {/* ── Page Context ─────────────────────── */}
+          <div className="pt-8 pb-4">
+            <h2 className="text-xl font-bold text-slate-900">
+              Welcome back, {citizenName}
+            </h2>
+            <p className="text-sm text-slate-500 mt-1">
+              You have filed <span className="font-semibold text-slate-700">{stats.totalFiled} grievance{stats.totalFiled !== 1 ? 's' : ''}</span> — <span className="font-semibold text-emerald-600">{stats.resolved} resolved</span>
+            </p>
+          </div>
+
           {activeTab === 'my-grievances' && (
             <MyGrievancesTab 
               complaints={complaints} 
