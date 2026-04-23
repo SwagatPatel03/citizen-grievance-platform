@@ -6,63 +6,78 @@ import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 public class ChatService {
 
-    @Value("${gemini.api.key}")
+    @Value("${nvidia.api.key}")
     private String apiKey;
 
     private final RestTemplate restTemplate = new RestTemplate();
 
     public String getLokMitraResponse(String userMessage) {
-        String url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=" + apiKey;
 
-        // 1. Give the AI context
-        String systemPrompt = "You are LokMitra, an official AI civic assistant for the LokShikayat GovTech platform in India. " +
-                "Keep your answers brief, polite, and strictly focused on civic issues, public utilities, and filling grievances. " +
-                "Do not use markdown formatting like asterisks or hash tags. " +
-                "The citizen says: " + userMessage;
+        String url = "https://integrate.api.nvidia.com/v1/chat/completions";
 
-        // 2. Build the JSON structure expected by Gemini
-        Map<String, Object> textPart = new HashMap<>();
-        textPart.put("text", systemPrompt);
+        // System + user messages (OpenAI format)
+        Map<String, String> systemMsg = Map.of(
+                "role", "system",
+                "content", "You are LokMitra, an official AI civic assistant for the LokShikayat GovTech platform in India. " +
+                        "Keep answers brief, polite, and focused only on civic issues and grievance filing. " +
+                        "Do not use markdown formatting."
+        );
 
-        Map<String, Object> parts = new HashMap<>();
-        parts.put("parts", Collections.singletonList(textPart));
+        Map<String, String> userMsg = Map.of(
+                "role", "user",
+                "content", userMessage
+        );
 
         Map<String, Object> requestBody = new HashMap<>();
-        requestBody.put("contents", Collections.singletonList(parts));
+        requestBody.put("model", "meta/llama-3.3-70b-instruct");
+        requestBody.put("messages", List.of(systemMsg, userMsg));
+        requestBody.put("temperature", 0.2);
+        requestBody.put("top_p", 0.7);
+        requestBody.put("max_tokens", 512);
 
-        // 3. Set Headers
+        // Headers (IMPORTANT: Bearer token)
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-        HttpEntity<Map<String, Object>> request = new HttpEntity<>(requestBody, headers);
+        headers.setBearerAuth(apiKey);
+
+        HttpEntity<Map<String, Object>> request =
+                new HttpEntity<>(requestBody, headers);
 
         try {
-            // 4. Send the request
-            ResponseEntity<Map<String, Object>> response = restTemplate
-                    .exchange(
+            ResponseEntity<Map<String, Object>> response =
+                    restTemplate.exchange(
                             url,
                             HttpMethod.POST,
                             request,
-                            new ParameterizedTypeReference<Map<String, Object>>() {}
+                            new ParameterizedTypeReference<>() {}
                     );
 
-            // 5. Parse the nested JSON response
-            Map<String, Object> responseBody = response.getBody();
-            List<Map<String, Object>> candidates = (List<Map<String, Object>>) responseBody.get("candidates");
-            Map<String, Object> content = (Map<String, Object>) candidates.get(0).get("content");
-            List<Map<String, Object>> partsList = (List<Map<String, Object>>) content.get("parts");
+            Map<String, Object> body = response.getBody();
 
-            return (String) partsList.get(0).get("text");
+            if (body == null || !body.containsKey("choices")) {
+                return "No response received from AI service.";
+            }
+
+            List<Map<String, Object>> choices =
+                    (List<Map<String, Object>>) body.get("choices");
+
+            if (choices.isEmpty()) {
+                return "AI returned an empty response.";
+            }
+
+            Map<String, Object> message =
+                    (Map<String, Object>) choices.get(0).get("message");
+
+            return message.get("content").toString();
+
         } catch (Exception e) {
-            System.err.println("AI Request Failed: " + e.getMessage());
-            return "I am currently experiencing connectivity issues with the central server. Please try again later or contact the emergency directory";
+            e.printStackTrace();
+            return "Service temporarily unavailable. Please try again.";
         }
     }
 }

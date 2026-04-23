@@ -1,12 +1,12 @@
 import {BrowserRouter as Router, Routes, Route, useLocation} from "react-router-dom";
 import Navbar from "./components/Navbar.jsx";
 import CitizenCommandCenter from "./pages/CitizenCommandCenter.jsx";
-import OfficerDashboard from "./pages/OfficerDashboard.jsx";
 import AdminDashboard from "./pages/AdminDashboard.jsx";
 import Login from "./pages/Login.jsx";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
 import Home from "./pages/Home.jsx";
 import Register from "./pages/Register.jsx";
+import OfficerPortal from "./pages/OfficerPortal.jsx";
 
 // Layout component to conditionally render Navbar
 function AppLayout() {
@@ -30,7 +30,7 @@ function AppLayout() {
                     <Route path="/citizen" element={<CitizenCommandCenter />} />
                     <Route path="/officer" element={
                         <ProtectedRoute allowedRoles={['OFFICER', 'ADMIN']}>
-                            <OfficerDashboard />
+                            <OfficerPortal />
                         </ProtectedRoute>
                     } />
                     <Route path="/admin" element={

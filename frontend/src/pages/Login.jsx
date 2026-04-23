@@ -28,19 +28,17 @@ const Login = () => {
             localStorage.setItem('user_name', name);
             localStorage.setItem('user_role', role);
 
-            // 2. Redirect based on their role
+            // 2. Redirect and force a hard reload simultaneously using window.location.href
             if (role === 'CITIZEN') {
-                navigate('/citizen');
+                window.location.href = '/citizen';
             } else if (role === 'OFFICER') {
-                navigate('/officer');
+                window.location.href = '/officer';
             } else if (role === 'ADMIN') {
-                navigate('/admin');
+                window.location.href = '/admin';
             } else {
-                navigate('/');
+                window.location.href = '/';
             }
 
-            // Force a hard reload to update the Navbar state
-            window.location.reload();
         } catch (err) {
             setError('Invalid email or password. Please try again.');
         } finally {

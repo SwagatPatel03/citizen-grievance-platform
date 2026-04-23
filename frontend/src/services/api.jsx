@@ -30,9 +30,10 @@ apiClient.interceptors.request.use(
 export const registerUser = (userData) => apiClient.post("/users/register", userData)
 export const loginUser = (credentials) => apiClient.post("/users/login", credentials)
 
-// ---- DEPARTMENT ENDPOINTS ----
-export const createDepartment = (departmentData) => apiClient.post("/departments/create", departmentData)
-export const getAllDepartments = () => apiClient.get("/departments/all")
+// ---- ADMIN ENDPOINTS ----
+export const createDepartment = (departmentData) => apiClient.post("/admin/departments", departmentData)
+export const getAllDepartments = () => apiClient.get("/admin/departments")
+export const registerOfficer = (officerData) => apiClient.post("/admin/officers", officerData)
 
 // ---- COMPLAINT ENDPOINTS ----
 export const submitComplaint = (complaintData) => apiClient.post("/complaints/submit", complaintData)
